@@ -6,8 +6,8 @@ import 'screens/appointments_screen.dart';
 import 'screens/booking_flow_screen.dart';
 import 'screens/clinic_staff_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/patient_account_view.dart';
 import 'widgets/dentibot_dialog.dart';
-import 'widgets/settings_dialog.dart';
 
 void main() {
   runApp(const DentiCareApp());
@@ -223,6 +223,16 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
     });
   }
 
+  void _updateUser(UserAccount updated) {
+    setState(() {
+      _currentUser = updated;
+      final idx = _users.indexWhere((u) => u.id == updated.id);
+      if (idx != -1) {
+        _users[idx] = updated;
+      }
+    });
+  }
+
   void _toggleUserStatus(String userId, String newStatus) {
     setState(() {
       final idx = _users.indexWhere((u) => u.id == userId);
@@ -344,170 +354,18 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
         onNavigateToBook: () => setState(() => _navIndex = 1),
         onCancelAppointment: _cancelAppointment,
       ),
-      // Patient Account Tab with Logout option
-      Scaffold(
-        appBar: AppBar(
-          title: const Text('Patient Account & Session',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              const CircleAvatar(
-                radius: 40,
-                backgroundColor: Color(0xFF003B81),
-                child: Icon(Icons.person, size: 48, color: Colors.white),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                _currentUser!.fullName,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                'Role: ${_currentUser!.role} • @${_currentUser!.username}',
-                style: const TextStyle(color: Colors.grey, fontSize: 13),
-              ),
-              const SizedBox(height: 24),
-              Card(
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.email_outlined),
-                      title: const Text('Email Address'),
-                      subtitle: Text(_currentUser!.email),
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.verified_user_outlined),
-                      title: const Text('Account Status'),
-                      subtitle: Text(_currentUser!.status),
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.calendar_today_outlined),
-                      title: const Text('Registration Date'),
-                      subtitle: Text(_currentUser!.registeredDate),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.shade700,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  onPressed: _logout,
-                  icon: const Icon(Icons.logout),
-                  label: const Text('Log Out of DentiCare'),
-                ),
-              ),
-            ],
-          ),
-        ),
+      PatientAccountView(
+        user: _currentUser!,
+        isDarkMode: widget.isDarkMode,
+        isLargeFont: widget.isLargeFont,
+        onToggleDarkMode: widget.onToggleDarkMode,
+        onToggleLargeFont: widget.onToggleLargeFont,
+        onLogout: _logout,
+        onUpdateUser: _updateUser,
       ),
     ];
 
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(46),
-        child: Container(
-          color: const Color(0xFF003B81),
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Role Indicator & Demo Switcher
-              Row(
-                children: [
-                  const Icon(Icons.shield_outlined,
-                      color: Colors.white70, size: 16),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Active Mode: ',
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.18),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _activeRole,
-                        dropdownColor: const Color(0xFF003B81),
-                        icon: const Icon(Icons.arrow_drop_down,
-                            color: Colors.white, size: 18),
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12),
-                        items: ['Patient', 'Clinic Staff', 'Administrator']
-                            .map((role) {
-                          String label = '👤 Patient View';
-                          if (role == 'Clinic Staff') label = '🏥 Clinic Staff';
-                          if (role == 'Administrator') label = '⚙️ Administrator';
-
-                          return DropdownMenuItem(
-                            value: role,
-                            child: Text(label),
-                          );
-                        }).toList(),
-                        onChanged: (newRole) {
-                          if (newRole != null) {
-                            setState(() {
-                              _activeRole = newRole;
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              // Action Buttons: Settings & Logout
-              Row(
-                children: [
-                  TextButton.icon(
-                    icon:
-                        const Icon(Icons.tune, color: Colors.white70, size: 14),
-                    label: const Text(
-                      'Settings',
-                      style: TextStyle(color: Colors.white, fontSize: 11),
-                    ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => SettingsDialog(
-                          isLargeFont: widget.isLargeFont,
-                          isDarkMode: widget.isDarkMode,
-                          onToggleLargeFont: widget.onToggleLargeFont,
-                          onToggleDarkMode: widget.onToggleDarkMode,
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 4),
-                  IconButton(
-                    tooltip: 'Log Out',
-                    icon: const Icon(Icons.logout_rounded,
-                        color: Colors.white, size: 18),
-                    onPressed: _logout,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
       body: isAdmin
           ? AdminScreen(
               users: _users,
@@ -519,12 +377,14 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
               onAddService: _addService,
               onUpdateService: _updateService,
               onAddDentist: _addDentist,
+              onLogout: _logout,
             )
           : (isStaff
               ? ClinicStaffScreen(
                   appointments: _appointments,
                   onAddAppointment: _addAppointment,
                   onUpdateAppointmentStatus: _updateAppointmentStatus,
+                  onLogout: _logout,
                 )
               : patientScreens[_navIndex]),
       bottomNavigationBar: isPatient

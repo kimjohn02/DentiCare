@@ -6,12 +6,14 @@ class ClinicStaffScreen extends StatefulWidget {
   final Function(AppointmentRecord) onAddAppointment;
   final Function(String id, String newStatus, {String? notes})
       onUpdateAppointmentStatus;
+  final VoidCallback? onLogout;
 
   const ClinicStaffScreen({
     super.key,
     required this.appointments,
     required this.onAddAppointment,
     required this.onUpdateAppointmentStatus,
+    this.onLogout,
   });
 
   @override
@@ -208,6 +210,14 @@ class _ClinicStaffScreenState extends State<ClinicStaffScreen>
             ),
           ],
         ),
+        actions: [
+          if (widget.onLogout != null)
+            IconButton(
+              icon: const Icon(Icons.logout_rounded),
+              tooltip: 'Log Out of Staff Portal',
+              onPressed: widget.onLogout,
+            ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           labelColor: const Color(0xFF003B81),

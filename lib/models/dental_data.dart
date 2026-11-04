@@ -159,6 +159,7 @@ class UserAccount {
   final String username;
   final String fullName;
   final String email;
+  final String contactNumber;
   final String role; // 'Patient', 'Clinic Staff', 'Administrator'
   final String status; // 'Active', 'Suspended'
   final String registeredDate;
@@ -168,6 +169,7 @@ class UserAccount {
     required this.username,
     required this.fullName,
     required this.email,
+    this.contactNumber = '0987-654-3210',
     required this.role,
     required this.status,
     required this.registeredDate,
@@ -176,6 +178,7 @@ class UserAccount {
   UserAccount copyWith({
     String? fullName,
     String? email,
+    String? contactNumber,
     String? role,
     String? status,
   }) {
@@ -184,6 +187,7 @@ class UserAccount {
       username: username,
       fullName: fullName ?? this.fullName,
       email: email ?? this.email,
+      contactNumber: contactNumber ?? this.contactNumber,
       role: role ?? this.role,
       status: status ?? this.status,
       registeredDate: registeredDate,
@@ -349,6 +353,7 @@ class DentalClinicData {
       username: 'kim_lupogan',
       fullName: 'Lupogan, Kim Macpao',
       email: 'kim@gmail.com',
+      contactNumber: '0987-654-3210',
       role: 'Patient',
       status: 'Active',
       registeredDate: '08/01/2026',
@@ -358,6 +363,7 @@ class DentalClinicData {
       username: 'joen_reloba',
       fullName: 'Reloba, Joen Paul',
       email: 'joen@gmail.com',
+      contactNumber: '0912-345-6789',
       role: 'Patient',
       status: 'Active',
       registeredDate: '08/10/2026',
@@ -367,6 +373,7 @@ class DentalClinicData {
       username: 'maria_santos',
       fullName: 'Santos, Maria Elena',
       email: 'maria.santos@gmail.com',
+      contactNumber: '0922-888-9999',
       role: 'Patient',
       status: 'Active',
       registeredDate: '07/15/2026',
@@ -376,6 +383,7 @@ class DentalClinicData {
       username: 'receptionist_feiah',
       fullName: 'Feiah O. Macalde (Clinic Front Desk)',
       email: 'desk@denticare.clinic',
+      contactNumber: '0917-800-4321',
       role: 'Clinic Staff',
       status: 'Active',
       registeredDate: '05/01/2026',
@@ -385,6 +393,7 @@ class DentalClinicData {
       username: 'admin_kj',
       fullName: 'KJ M. Lupogan (System Administrator)',
       email: 'admin@denticare.clinic',
+      contactNumber: '0919-555-1234',
       role: 'Administrator',
       status: 'Active',
       registeredDate: '01/10/2026',

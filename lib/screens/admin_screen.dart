@@ -11,6 +11,7 @@ class AdminScreen extends StatefulWidget {
   final Function(DentalService) onAddService;
   final Function(DentalService) onUpdateService;
   final Function(Dentist) onAddDentist;
+  final VoidCallback? onLogout;
 
   const AdminScreen({
     super.key,
@@ -23,6 +24,7 @@ class AdminScreen extends StatefulWidget {
     required this.onAddService,
     required this.onUpdateService,
     required this.onAddDentist,
+    this.onLogout,
   });
 
   @override
@@ -125,6 +127,7 @@ class _AdminScreenState extends State<AdminScreen>
                     email: emailCtrl.text.trim().isEmpty
                         ? '${usernameCtrl.text.trim()}@denticare.clinic'
                         : emailCtrl.text.trim(),
+                    contactNumber: '0917-000-0000',
                     role: roleVal,
                     status: 'Active',
                     registeredDate: '11/04/2026',
@@ -333,6 +336,14 @@ class _AdminScreenState extends State<AdminScreen>
             ),
           ],
         ),
+        actions: [
+          if (widget.onLogout != null)
+            IconButton(
+              icon: const Icon(Icons.logout_rounded),
+              tooltip: 'Log Out of Admin Portal',
+              onPressed: widget.onLogout,
+            ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           labelColor: const Color(0xFF003B81),
@@ -495,7 +506,7 @@ class _AdminScreenState extends State<AdminScreen>
                           ],
                         ),
                         subtitle: Text(
-                            '@${u.username} • ${u.email}\nRegistered: ${u.registeredDate} • Status: ${u.status}'),
+                            '@${u.username} • ${u.email} • 📞 ${u.contactNumber}\nRegistered: ${u.registeredDate} • Status: ${u.status}'),
                         trailing: PopupMenuButton<String>(
                           onSelected: (action) {
                             if (action == 'toggle') {

@@ -19,53 +19,21 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _roleTabController;
-
-  final _patientUserCtrl = TextEditingController(text: 'kim_lupogan');
-  final _patientPassCtrl = TextEditingController(text: 'password123');
-
-  final _staffUserCtrl = TextEditingController(text: 'receptionist_feiah');
-  final _staffPassCtrl = TextEditingController(text: 'staff123');
-
-  final _adminUserCtrl = TextEditingController(text: 'admin_kj');
-  final _adminPassCtrl = TextEditingController(text: 'admin123');
-
+class _LoginScreenState extends State<LoginScreen> {
+  final _usernameCtrl = TextEditingController(text: 'kim_lupogan');
+  final _passwordCtrl = TextEditingController(text: 'password123');
   bool _obscurePassword = true;
 
   @override
-  void initState() {
-    super.initState();
-    _roleTabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
   void dispose() {
-    _roleTabController.dispose();
-    _patientUserCtrl.dispose();
-    _patientPassCtrl.dispose();
-    _staffUserCtrl.dispose();
-    _staffPassCtrl.dispose();
-    _adminUserCtrl.dispose();
-    _adminPassCtrl.dispose();
+    _usernameCtrl.dispose();
+    _passwordCtrl.dispose();
     super.dispose();
   }
 
-  void _handleLogin(String role) {
-    String username = '';
-    String password = '';
-
-    if (role == 'Patient') {
-      username = _patientUserCtrl.text.trim();
-      password = _patientPassCtrl.text.trim();
-    } else if (role == 'Clinic Staff') {
-      username = _staffUserCtrl.text.trim();
-      password = _staffPassCtrl.text.trim();
-    } else {
-      username = _adminUserCtrl.text.trim();
-      password = _adminPassCtrl.text.trim();
-    }
+  void _handleLogin() {
+    final username = _usernameCtrl.text.trim();
+    final password = _passwordCtrl.text.trim();
 
     if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -80,25 +48,41 @@ class _LoginScreenState extends State<LoginScreen>
     // Match with registered users or create session account
     final existingUser = widget.users.firstWhere(
       (u) => u.username.toLowerCase() == username.toLowerCase(),
-      orElse: () => UserAccount(
-        id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
-        username: username,
-        fullName: role == 'Patient'
-            ? 'Lupogan, Kim Macpao'
-            : (role == 'Clinic Staff'
-                ? 'Feiah O. Macalde (Staff)'
-                : 'KJ M. Lupogan (Admin)'),
-        email: '$username@denticare.clinic',
-        role: role,
-        status: 'Active',
-        registeredDate: '11/04/2026',
-      ),
+      orElse: () {
+        // Fallback role detection based on username keywords if user is not in pre-populated list
+        String inferredRole = 'Patient';
+        final lower = username.toLowerCase();
+        if (lower.contains('admin')) {
+          inferredRole = 'Administrator';
+        } else if (lower.contains('staff') ||
+            lower.contains('desk') ||
+            lower.contains('nurse') ||
+            lower.contains('receptionist')) {
+          inferredRole = 'Clinic Staff';
+        }
+
+        return UserAccount(
+          id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
+          username: username,
+          fullName: inferredRole == 'Patient'
+              ? username
+              : (inferredRole == 'Clinic Staff'
+                  ? 'Clinic Staff Member'
+                  : 'System Administrator'),
+          email: '$username@denticare.clinic',
+          contactNumber: '0987-654-3210',
+          role: inferredRole,
+          status: 'Active',
+          registeredDate: '11/04/2026',
+        );
+      },
     );
 
     if (existingUser.status == 'Suspended') {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('This account is suspended. Please contact clinic admin.'),
+          content:
+              Text('This account is suspended. Please contact clinic admin.'),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -111,116 +95,146 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF003B81), Color(0xFF0F172A)],
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 440),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Brand Logo Badge (Figure 6)
-                    Container(
-                      width: 76,
-                      height: 76,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            blurRadius: 16,
-                            offset: const Offset(0, 6),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 390),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // White Floating Card matching template
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 28, vertical: 28),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 24,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Clinic Logo (Enlarged for bold brand presence)
+                        SizedBox(
+                          width: 180,
+                          height: 150,
+                          child: Image.asset(
+                            'assets/images/logo.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(
+                              Icons.health_and_safety_rounded,
+                              size: 72,
+                              color: Color(0xFF003B81),
+                            ),
                           ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        errorBuilder: (context, error, stackTrace) => const Icon(
-                          Icons.favorite,
-                          size: 40,
-                          color: Color(0xFF003B81),
                         ),
-                      ),
+                        const SizedBox(height: 18),
+
+                        // Username Field
+                        _buildTextField(
+                          label: 'Username',
+                          controller: _usernameCtrl,
+                          icon: Icons.person_outline,
+                          hintText: 'Enter your username',
+                        ),
+                        const SizedBox(height: 14),
+
+                        // Password Field
+                        _buildPasswordField(
+                          label: 'Password',
+                          controller: _passwordCtrl,
+                        ),
+                        const SizedBox(height: 22),
+
+                        // Sign In Button matching template style
+                        SizedBox(
+                          width: double.infinity,
+                          height: 44,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF003B81),
+                              foregroundColor: Colors.white,
+                              elevation: 1,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            icon: const Icon(Icons.login_rounded, size: 18),
+                            label: const Text(
+                              'Sign In',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 14),
+                            ),
+                            onPressed: _handleLogin,
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+
+                        // Prominent Register Link for Patients
+                        Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                "Don't have an account? ",
+                                style: TextStyle(
+                                  color: Color(0xFF64748B),
+                                  fontSize: 13,
+                                ),
+                              ),
+                              InkWell(
+                                onTap: widget.onNavigateToRegister,
+                                borderRadius: BorderRadius.circular(4),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 4, vertical: 2),
+                                  child: Text(
+                                    'Register Here',
+                                    style: TextStyle(
+                                      color: Color(0xFF003B81),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: Color(0xFF003B81),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'DentiCare',
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Back to Guest / Home Link
+                  TextButton.icon(
+                    onPressed: widget.onBackToHome,
+                    icon: const Icon(Icons.arrow_back,
+                        color: Color(0xFF64748B), size: 16),
+                    label: const Text(
+                      'Continue as Guest / Back to Home',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
+                        color: Color(0xFF64748B),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const Text(
-                      'Dental Clinic Appointment & Management System',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
-                    ),
-                    const SizedBox(height: 22),
-
-                    // Role Tabs Selector: Patient vs Staff vs Admin
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: TabBar(
-                        controller: _roleTabController,
-                        indicator: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        labelColor: const Color(0xFF003B81),
-                        unselectedLabelColor: Colors.white70,
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        tabs: const [
-                          Tab(text: 'Patient'),
-                          Tab(text: 'Staff'),
-                          Tab(text: 'Admin'),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Tab Views with Forms
-                    SizedBox(
-                      height: 340,
-                      child: TabBarView(
-                        controller: _roleTabController,
-                        children: [
-                          _buildPatientLoginForm(),
-                          _buildStaffLoginForm(),
-                          _buildAdminLoginForm(),
-                        ],
-                      ),
-                    ),
-
-                    // Back to Home Link
-                    TextButton.icon(
-                      onPressed: widget.onBackToHome,
-                      icon: const Icon(Icons.arrow_back,
-                          color: Colors.white70, size: 16),
-                      label: const Text(
-                        'Continue as Guest / Back to Home',
-                        style: TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -229,192 +243,50 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  // 1. PATIENT LOGIN FORM (Has Login + Register Account)
-  Widget _buildPatientLoginForm() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTextField('Patient Username', _patientUserCtrl, Icons.person_outline),
-        const SizedBox(height: 14),
-        _buildPasswordField('Password', _patientPassCtrl),
-        const SizedBox(height: 18),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2563EB),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: () => _handleLogin('Patient'),
-            child: const Text('Log in as Patient',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        // REGISTER ACCOUNT (ONLY FOR PATIENTS - Figure 6 & 7)
-        Center(
-          child: TextButton(
-            onPressed: widget.onNavigateToRegister,
-            child: RichText(
-              text: const TextSpan(
-                text: 'New patient? ',
-                style: TextStyle(color: Colors.white70, fontSize: 13),
-                children: [
-                  TextSpan(
-                    text: 'Register Account Here',
-                    style: TextStyle(
-                      color: Color(0xFF93C5FD),
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // 2. CLINIC STAFF LOGIN FORM (LOGIN ONLY - NO REGISTRATION)
-  Widget _buildStaffLoginForm() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Notice banner stating staff accounts are managed by Admin
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: const Color(0xFF10B981).withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-                color: const Color(0xFF10B981).withValues(alpha: 0.3)),
-          ),
-          child: Row(
-            children: const [
-              Icon(Icons.lock_person_rounded,
-                  color: Color(0xFF10B981), size: 16),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Staff portal is restricted. Accounts are created and issued by Clinic Administration.',
-                  style: TextStyle(color: Colors.white70, fontSize: 11),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildTextField('Staff Username', _staffUserCtrl, Icons.badge_outlined),
-        const SizedBox(height: 12),
-        _buildPasswordField('Password', _staffPassCtrl),
-        const SizedBox(height: 18),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: () => _handleLogin('Clinic Staff'),
-            child: const Text('Staff Sign In',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // 3. ADMINISTRATOR LOGIN FORM (LOGIN ONLY - NO REGISTRATION)
-  Widget _buildAdminLoginForm() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Notice banner stating admin access is restricted
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.purple.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.purpleAccent.withValues(alpha: 0.3)),
-          ),
-          child: Row(
-            children: const [
-              Icon(Icons.admin_panel_settings_rounded,
-                  color: Colors.purpleAccent, size: 16),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Administrator governance access only. Registration is disabled for security.',
-                  style: TextStyle(color: Colors.white70, fontSize: 11),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildTextField(
-            'Admin Username', _adminUserCtrl, Icons.security_rounded),
-        const SizedBox(height: 12),
-        _buildPasswordField('Password', _adminPassCtrl),
-        const SizedBox(height: 18),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.purple,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: () => _handleLogin('Administrator'),
-            child: const Text('Admin Sign In',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTextField(
-      String label, TextEditingController controller, IconData icon) {
+  // Text Input styled identically to user's sample template
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    String? hintText,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.9),
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
+          style: const TextStyle(
+            color: Color(0xFF334155),
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         TextField(
           controller: controller,
-          style: const TextStyle(color: Colors.black87, fontSize: 13),
+          style: const TextStyle(
+            color: Color(0xFF0F172A),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.white,
-            hintText: 'Enter $label',
-            prefixIcon: Icon(icon, size: 20),
+            fillColor: const Color(0xFFF0F4FA),
+            hintText: hintText ?? 'Enter $label',
+            hintStyle:
+                const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+            prefixIcon:
+                Icon(icon, size: 18, color: const Color(0xFF64748B)),
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide:
+                  const BorderSide(color: Color(0xFF003B81), width: 1.5),
             ),
           ),
         ),
@@ -422,42 +294,62 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildPasswordField(String label, TextEditingController controller) {
+  // Password Input with eye toggle styled identically to user's sample template
+  Widget _buildPasswordField({
+    required String label,
+    required TextEditingController controller,
+    String? hintText,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.9),
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
+          style: const TextStyle(
+            color: Color(0xFF334155),
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         TextField(
           controller: controller,
           obscureText: _obscurePassword,
-          style: const TextStyle(color: Colors.black87, fontSize: 13),
+          style: const TextStyle(
+            color: Color(0xFF0F172A),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.white,
-            hintText: 'Enter password',
-            prefixIcon: const Icon(Icons.lock_outline, size: 20),
+            fillColor: const Color(0xFFF0F4FA),
+            hintText: hintText ?? 'Enter password',
+            hintStyle:
+                const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+            prefixIcon:
+                const Icon(Icons.lock_outline, size: 18, color: Color(0xFF64748B)),
             suffixIcon: IconButton(
               icon: Icon(
-                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                _obscurePassword
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
                 size: 18,
+                color: const Color(0xFF64748B),
               ),
               onPressed: () {
                 setState(() => _obscurePassword = !_obscurePassword);
               },
             ),
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide:
+                  const BorderSide(color: Color(0xFF003B81), width: 1.5),
             ),
           ),
         ),
@@ -468,6 +360,7 @@ class _LoginScreenState extends State<LoginScreen>
 
 // -----------------------------------------------------------------
 // PATIENT REGISTRATION SCREEN (Figures 7 & 10 from Research Paper)
+// Styled to match the clean white card template
 // -----------------------------------------------------------------
 class RegistrationScreen extends StatefulWidget {
   final Function(UserAccount user) onRegisterSuccess;
@@ -528,6 +421,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       fullName:
           '${_lastName.text.trim()}, ${_firstName.text.trim()} ${_middleInitial.text.trim()}',
       email: _email.text.trim(),
+      contactNumber: _contactNumber.text.trim().isNotEmpty
+          ? _contactNumber.text.trim()
+          : '0987-654-3210',
       role: 'Patient',
       status: 'Active',
       registeredDate: '11/04/2026',
@@ -546,203 +442,299 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A2540),
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Column(
-                    children: const [
-                      Text(
-                        'Patient Registration',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Create your patient record for DentiCare appointment booking',
-                        style: TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Section 1: Account Information (Figure 7)
-                const Text(
-                  'Account Information',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(child: _buildInputField('Username', _username)),
-                    const SizedBox(width: 8),
-                    Expanded(
-                        child: _buildInputField('Password', _password,
-                            isPassword: true)),
-                    const SizedBox(width: 8),
-                    Expanded(child: _buildInputField('Email', _email)),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                // Section 2: Personal Information (Figure 7)
-                const Text(
-                  'Personal Information',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(child: _buildInputField('First Name', _firstName)),
-                    const SizedBox(width: 8),
-                    SizedBox(
-                      width: 90,
-                      child: _buildInputField('M.I.', _middleInitial),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 620),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 32, vertical: 30),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(child: _buildInputField('Last Name', _lastName)),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      flex: 2,
+                    // Header
+                    Center(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF003B81)
+                                  .withValues(alpha: 0.08),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.app_registration_rounded,
+                              size: 32,
+                              color: Color(0xFF003B81),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
                           const Text(
-                            'Birthday',
-                            style: TextStyle(color: Colors.white70, fontSize: 12),
+                            'Patient Registration',
+                            style: TextStyle(
+                              color: Color(0xFF0F172A),
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 4),
-                          TextField(
-                            controller: _birthday,
-                            style: const TextStyle(fontSize: 13),
-                            readOnly: true,
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              hintText: 'MM/DD/YYYY',
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.calendar_month, size: 18),
-                                onPressed: () async {
-                                  final d = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime(2005, 5, 15),
-                                    firstDate: DateTime(1940),
-                                    lastDate: DateTime.now(),
-                                  );
-                                  if (d != null) {
-                                    _birthday.text =
-                                        '${d.month.toString().padLeft(2, '0')}/${d.day.toString().padLeft(2, '0')}/${d.year}';
-                                  }
-                                },
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 8),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
+                          const Text(
+                            'Create your patient record for DentiCare appointment booking',
+                            style: TextStyle(
+                                color: Color(0xFF64748B), fontSize: 12),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Sex',
-                            style: TextStyle(color: Colors.white70, fontSize: 12),
+                    const SizedBox(height: 24),
+
+                    // Section 1: Account Information (Figure 7)
+                    Row(
+                      children: const [
+                        Icon(Icons.shield_outlined,
+                            size: 18, color: Color(0xFF003B81)),
+                        SizedBox(width: 6),
+                        Text(
+                          'Account Information',
+                          style: TextStyle(
+                            color: Color(0xFF003B81),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
                           ),
-                          const SizedBox(height: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 16),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Expanded(
+                            child: _buildInputField('Username', _username)),
+                        const SizedBox(width: 10),
+                        Expanded(
+                            child: _buildInputField('Password', _password,
+                                isPassword: true)),
+                        const SizedBox(width: 10),
+                        Expanded(child: _buildInputField('Email', _email)),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Section 2: Personal Information (Figure 7)
+                    Row(
+                      children: const [
+                        Icon(Icons.person_outline_rounded,
+                            size: 18, color: Color(0xFF003B81)),
+                        SizedBox(width: 6),
+                        Text(
+                          'Personal Information',
+                          style: TextStyle(
+                            color: Color(0xFF003B81),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 16),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Expanded(
+                            child:
+                                _buildInputField('First Name', _firstName)),
+                        const SizedBox(width: 10),
+                        SizedBox(
+                          width: 85,
+                          child:
+                              _buildInputField('M.I.', _middleInitial),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                            child: _buildInputField('Last Name', _lastName)),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Birthday',
+                                style: TextStyle(
+                                  color: Color(0xFF334155),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              TextField(
+                                controller: _birthday,
+                                style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Color(0xFF0F172A)),
+                                readOnly: true,
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: const Color(0xFFF0F4FA),
+                                  hintText: 'MM/DD/YYYY',
+                                  hintStyle: const TextStyle(
+                                      color: Color(0xFF94A3B8), fontSize: 12),
+                                  suffixIcon: IconButton(
+                                    icon: const Icon(Icons.calendar_month,
+                                        size: 18, color: Color(0xFF64748B)),
+                                    onPressed: () async {
+                                      final d = await showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime(2005, 5, 15),
+                                        firstDate: DateTime(1940),
+                                        lastDate: DateTime.now(),
+                                      );
+                                      if (d != null) {
+                                        _birthday.text =
+                                            '${d.month.toString().padLeft(2, '0')}/${d.day.toString().padLeft(2, '0')}/${d.year}';
+                                      }
+                                    },
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 10),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(
+                                        color: Color(0xFFE2E8F0)),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(
+                                        color: Color(0xFF003B81), width: 1.5),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Sex',
+                                style: TextStyle(
+                                  color: Color(0xFF334155),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF0F4FA),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                      color: const Color(0xFFE2E8F0)),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: _selectedSex,
+                                    isExpanded: true,
+                                    items: [
+                                      'Female',
+                                      'Male',
+                                      'Prefer not to say'
+                                    ]
+                                        .map((s) => DropdownMenuItem(
+                                            value: s,
+                                            child: Text(s,
+                                                style: const TextStyle(
+                                                    fontSize: 13,
+                                                    color: Color(0xFF0F172A)))))
+                                        .toList(),
+                                    onChanged: (v) {
+                                      if (v != null) {
+                                        setState(() => _selectedSex = v);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 3,
+                          child: _buildInputField(
+                              'Contact Number', _contactNumber,
+                              hintText: '0987-654-3210'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+
+                    // Back and Register Buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFF64748B),
+                            side: const BorderSide(color: Color(0xFFCBD5E1)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: _selectedSex,
-                                isExpanded: true,
-                                items: ['Female', 'Male', 'Prefer not to say']
-                                    .map((s) => DropdownMenuItem(
-                                        value: s,
-                                        child: Text(s,
-                                            style: const TextStyle(fontSize: 13))))
-                                    .toList(),
-                                onChanged: (v) {
-                                  if (v != null) {
-                                    setState(() => _selectedSex = v);
-                                  }
-                                },
-                              ),
+                          ),
+                          icon: const Icon(Icons.arrow_back, size: 16),
+                          onPressed: widget.onBackToLogin,
+                          label: const Text('Back to Login'),
+                        ),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF003B81),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 28, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 3,
-                      child: _buildInputField('Contact Number', _contactNumber),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-
-                // Back and Register Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white54),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12),
-                      ),
-                      onPressed: widget.onBackToLogin,
-                      child: const Text('Back to Login'),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2563EB),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 32, vertical: 12),
-                      ),
-                      onPressed: _submitRegistration,
-                      child: const Text('Complete Registration',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                          icon: const Icon(Icons.check_circle_outline,
+                              size: 18),
+                          onPressed: _submitRegistration,
+                          label: const Text(
+                            'Complete Registration',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -751,29 +743,39 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   Widget _buildInputField(String label, TextEditingController controller,
-      {bool isPassword = false}) {
+      {bool isPassword = false, String? hintText}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
+          style: const TextStyle(
+            color: Color(0xFF334155),
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
         ),
         const SizedBox(height: 4),
         TextField(
           controller: controller,
           obscureText: isPassword,
-          style: const TextStyle(fontSize: 13),
+          style: const TextStyle(fontSize: 13, color: Color(0xFF0F172A)),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.white,
-            hintText: 'Enter $label',
-            hintStyle: const TextStyle(fontSize: 11),
+            fillColor: const Color(0xFFF0F4FA),
+            hintText: hintText ?? 'Enter $label',
+            hintStyle:
+                const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            border: OutlineInputBorder(
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide:
+                  const BorderSide(color: Color(0xFF003B81), width: 1.5),
             ),
           ),
         ),
