@@ -9,6 +9,8 @@ class BookingFlowScreen extends StatefulWidget {
   final ValueChanged<bool> onToggleDarkMode;
   final ValueChanged<bool> onToggleLargeFont;
   final Function(AppointmentRecord) onAppointmentBooked;
+  final List<DentalService>? services;
+  final List<Dentist>? dentists;
 
   const BookingFlowScreen({
     super.key,
@@ -17,6 +19,8 @@ class BookingFlowScreen extends StatefulWidget {
     required this.onToggleDarkMode,
     required this.onToggleLargeFont,
     required this.onAppointmentBooked,
+    this.services,
+    this.dentists,
   });
 
   @override
@@ -27,10 +31,19 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
   int _currentStep = 0; // 0: Service, 1: Dentist, 2: Date/Time, 3: Summary
 
   // Booking Form State
-  DentalService _selectedService = DentalClinicData.services[0];
-  Dentist _selectedDentist = DentalClinicData.dentists[1]; // Dr. Michaela Jordan
+  late DentalService _selectedService;
+  late Dentist _selectedDentist;
   String _selectedDate = '09/11/2026';
   AppointmentSlot? _selectedSlot = DentalClinicData.availableSlots[0];
+
+  @override
+  void initState() {
+    super.initState();
+    final sList = widget.services ?? DentalClinicData.services;
+    final dList = widget.dentists ?? DentalClinicData.dentists;
+    _selectedService = sList.isNotEmpty ? sList[0] : DentalClinicData.services[0];
+    _selectedDentist = dList.length > 1 ? dList[1] : dList[0];
+  }
 
   // Patient Info State (Matches documented persona: Kim Macpao Lupogan)
   final TextEditingController _nameController =
@@ -96,7 +109,8 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
       time: _selectedSlot?.time ?? '8:00 AM',
       contact: _contactController.text.trim(),
       email: _emailController.text.trim(),
-      status: 'Confirmed',
+      status: 'Pending',
+      notes: 'Submitted via Patient Booking Wizard',
     );
 
     widget.onAppointmentBooked(newRecord);
@@ -391,7 +405,8 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                       child: DropdownButton<DentalService>(
                         value: _selectedService,
                         isExpanded: true,
-                        items: DentalClinicData.services.map((srv) {
+                        items: (widget.services ?? DentalClinicData.services)
+                            .map((srv) {
                           return DropdownMenuItem<DentalService>(
                             value: srv,
                             child: Text(srv.name),
@@ -549,7 +564,8 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                       child: DropdownButton<Dentist>(
                         value: _selectedDentist,
                         isExpanded: true,
-                        items: DentalClinicData.dentists.map((dentist) {
+                        items: (widget.dentists ?? DentalClinicData.dentists)
+                            .map((dentist) {
                           return DropdownMenuItem<Dentist>(
                             value: dentist,
                             child: Text(dentist.name),

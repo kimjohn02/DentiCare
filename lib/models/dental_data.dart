@@ -16,6 +16,23 @@ class DentalService {
     required this.cost,
     required this.icon,
   });
+
+  DentalService copyWith({
+    String? name,
+    String? description,
+    String? duration,
+    String? cost,
+    IconData? icon,
+  }) {
+    return DentalService(
+      id: id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      duration: duration ?? this.duration,
+      cost: cost ?? this.cost,
+      icon: icon ?? this.icon,
+    );
+  }
 }
 
 class Dentist {
@@ -34,6 +51,23 @@ class Dentist {
     required this.qualification,
     required this.avatarIcon,
   });
+
+  Dentist copyWith({
+    String? name,
+    String? experience,
+    String? specialization,
+    String? qualification,
+    IconData? avatarIcon,
+  }) {
+    return Dentist(
+      id: id,
+      name: name ?? this.name,
+      experience: experience ?? this.experience,
+      specialization: specialization ?? this.specialization,
+      qualification: qualification ?? this.qualification,
+      avatarIcon: avatarIcon ?? this.avatarIcon,
+    );
+  }
 }
 
 class AppointmentSlot {
@@ -59,7 +93,8 @@ class AppointmentRecord {
   final String time;
   final String contact;
   final String email;
-  final String status;
+  final String status; // 'Pending', 'Confirmed', 'In Treatment', 'Completed', 'Cancelled'
+  final String? notes;
 
   const AppointmentRecord({
     required this.id,
@@ -71,7 +106,89 @@ class AppointmentRecord {
     required this.contact,
     required this.email,
     required this.status,
+    this.notes,
   });
+
+  AppointmentRecord copyWith({
+    String? status,
+    String? notes,
+    String? date,
+    String? time,
+  }) {
+    return AppointmentRecord(
+      id: id,
+      patientName: patientName,
+      serviceName: serviceName,
+      dentistName: dentistName,
+      date: date ?? this.date,
+      time: time ?? this.time,
+      contact: contact,
+      email: email,
+      status: status ?? this.status,
+      notes: notes ?? this.notes,
+    );
+  }
+}
+
+class PatientProfile {
+  final String id;
+  final String name;
+  final String birthday;
+  final String sex;
+  final String contact;
+  final String email;
+  final String bloodType;
+  final String allergies;
+  final List<String> treatmentHistory;
+
+  const PatientProfile({
+    required this.id,
+    required this.name,
+    required this.birthday,
+    required this.sex,
+    required this.contact,
+    required this.email,
+    required this.bloodType,
+    required this.allergies,
+    required this.treatmentHistory,
+  });
+}
+
+class UserAccount {
+  final String id;
+  final String username;
+  final String fullName;
+  final String email;
+  final String role; // 'Patient', 'Clinic Staff', 'Administrator'
+  final String status; // 'Active', 'Suspended'
+  final String registeredDate;
+
+  const UserAccount({
+    required this.id,
+    required this.username,
+    required this.fullName,
+    required this.email,
+    required this.role,
+    required this.status,
+    required this.registeredDate,
+  });
+
+  UserAccount copyWith({
+    String? fullName,
+    String? email,
+    String? role,
+    String? status,
+  }) {
+    return UserAccount(
+      id: id,
+      username: username,
+      fullName: fullName ?? this.fullName,
+      email: email ?? this.email,
+      role: role ?? this.role,
+      status: status ?? this.status,
+      registeredDate: registeredDate,
+    );
+  }
 }
 
 // Pre-populated data matching the HCI research document figures
@@ -180,5 +297,97 @@ class DentalClinicData {
       time: '2:30 PM',
     ),
   ];
-}
 
+  static const List<PatientProfile> samplePatients = [
+    PatientProfile(
+      id: 'p_1',
+      name: 'Lupogan, Kim Macpao',
+      birthday: '05/15/2005',
+      sex: 'Female',
+      contact: '0987654321',
+      email: 'kim@gmail.com',
+      bloodType: 'O+',
+      allergies: 'None reported',
+      treatmentHistory: [
+        '08/15/2026 - Comprehensive Teeth Cleaning',
+        '09/11/2026 - Dental Bracing Consultation & Setup',
+      ],
+    ),
+    PatientProfile(
+      id: 'p_2',
+      name: 'Reloba, Joen Paul',
+      birthday: '11/20/1998',
+      sex: 'Male',
+      contact: '0912345678',
+      email: 'joen@gmail.com',
+      bloodType: 'A+',
+      allergies: 'Penicillin sensitivity',
+      treatmentHistory: [
+        '07/10/2026 - Dental Checkup & X-Ray',
+        '08/04/2026 - Teeth Whitening (Session 1)',
+      ],
+    ),
+    PatientProfile(
+      id: 'p_3',
+      name: 'Santos, Maria Elena',
+      birthday: '03/08/1962',
+      sex: 'Female',
+      contact: '0922888999',
+      email: 'maria.santos@gmail.com',
+      bloodType: 'B+',
+      allergies: 'Latex sensitivity (use nitrile gloves)',
+      treatmentHistory: [
+        '06/22/2026 - Tooth Extraction (Molar #18)',
+        '07/30/2026 - Dental Implant Consultation',
+      ],
+    ),
+  ];
+
+  static const List<UserAccount> sampleUsers = [
+    UserAccount(
+      id: 'u_1',
+      username: 'kim_lupogan',
+      fullName: 'Lupogan, Kim Macpao',
+      email: 'kim@gmail.com',
+      role: 'Patient',
+      status: 'Active',
+      registeredDate: '08/01/2026',
+    ),
+    UserAccount(
+      id: 'u_2',
+      username: 'joen_reloba',
+      fullName: 'Reloba, Joen Paul',
+      email: 'joen@gmail.com',
+      role: 'Patient',
+      status: 'Active',
+      registeredDate: '08/10/2026',
+    ),
+    UserAccount(
+      id: 'u_3',
+      username: 'maria_santos',
+      fullName: 'Santos, Maria Elena',
+      email: 'maria.santos@gmail.com',
+      role: 'Patient',
+      status: 'Active',
+      registeredDate: '07/15/2026',
+    ),
+    UserAccount(
+      id: 'u_4',
+      username: 'receptionist_feiah',
+      fullName: 'Feiah O. Macalde (Clinic Front Desk)',
+      email: 'desk@denticare.clinic',
+      role: 'Clinic Staff',
+      status: 'Active',
+      registeredDate: '05/01/2026',
+    ),
+    UserAccount(
+      id: 'u_5',
+      username: 'admin_kj',
+      fullName: 'KJ M. Lupogan (System Administrator)',
+      email: 'admin@denticare.clinic',
+      role: 'Administrator',
+      status: 'Active',
+      registeredDate: '01/10/2026',
+    ),
+  ];
+}
