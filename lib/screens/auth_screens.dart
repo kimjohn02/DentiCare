@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import '../models/dental_data.dart';
 
 class LoginScreen extends StatefulWidget {
-  final VoidCallback onLoginSuccess;
+  final List<UserAccount> users;
+  final Function(UserAccount user) onLoginSuccess;
   final VoidCallback onNavigateToRegister;
   final VoidCallback onBackToHome;
 
   const LoginScreen({
     super.key,
+    required this.users,
     required this.onLoginSuccess,
     required this.onNavigateToRegister,
     required this.onBackToHome,
@@ -16,30 +19,93 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _usernameController = TextEditingController(text: 'kim_lupogan');
-  final _passwordController = TextEditingController(text: 'password123');
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _roleTabController;
+
+  final _patientUserCtrl = TextEditingController(text: 'kim_lupogan');
+  final _patientPassCtrl = TextEditingController(text: 'password123');
+
+  final _staffUserCtrl = TextEditingController(text: 'receptionist_feiah');
+  final _staffPassCtrl = TextEditingController(text: 'staff123');
+
+  final _adminUserCtrl = TextEditingController(text: 'admin_kj');
+  final _adminPassCtrl = TextEditingController(text: 'admin123');
+
   bool _obscurePassword = true;
 
   @override
+  void initState() {
+    super.initState();
+    _roleTabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
   void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
+    _roleTabController.dispose();
+    _patientUserCtrl.dispose();
+    _patientPassCtrl.dispose();
+    _staffUserCtrl.dispose();
+    _staffPassCtrl.dispose();
+    _adminUserCtrl.dispose();
+    _adminPassCtrl.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
-    if (_usernameController.text.trim().isEmpty ||
-        _passwordController.text.trim().isEmpty) {
+  void _handleLogin(String role) {
+    String username = '';
+    String password = '';
+
+    if (role == 'Patient') {
+      username = _patientUserCtrl.text.trim();
+      password = _patientPassCtrl.text.trim();
+    } else if (role == 'Clinic Staff') {
+      username = _staffUserCtrl.text.trim();
+      password = _staffPassCtrl.text.trim();
+    } else {
+      username = _adminUserCtrl.text.trim();
+      password = _adminPassCtrl.text.trim();
+    }
+
+    if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please enter your username and password.'),
+          content: Text('Please enter both username and password.'),
           backgroundColor: Colors.redAccent,
         ),
       );
       return;
     }
-    widget.onLoginSuccess();
+
+    // Match with registered users or create session account
+    final existingUser = widget.users.firstWhere(
+      (u) => u.username.toLowerCase() == username.toLowerCase(),
+      orElse: () => UserAccount(
+        id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
+        username: username,
+        fullName: role == 'Patient'
+            ? 'Lupogan, Kim Macpao'
+            : (role == 'Clinic Staff'
+                ? 'Feiah O. Macalde (Staff)'
+                : 'KJ M. Lupogan (Admin)'),
+        email: '$username@denticare.clinic',
+        role: role,
+        status: 'Active',
+        registeredDate: '11/04/2026',
+      ),
+    );
+
+    if (existingUser.status == 'Suspended') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('This account is suspended. Please contact clinic admin.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
+    widget.onLoginSuccess(existingUser);
   }
 
   @override
@@ -58,19 +124,19 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 420),
+                constraints: const BoxConstraints(maxWidth: 440),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo Badge (Figure 6)
+                    // Brand Logo Badge (Figure 6)
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: 76,
+                      height: 76,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(18),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.25),
@@ -79,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(10),
                       child: Image.asset(
                         'assets/images/logo.png',
                         errorBuilder: (context, error, stackTrace) => const Icon(
@@ -89,139 +155,68 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     const Text(
                       'DentiCare',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 28,
+                        fontSize: 26,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
                       ),
                     ),
                     const Text(
-                      'Patient Portal Sign In',
-                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                      'Dental Clinic Appointment & Management System',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 22),
 
-                    // Username Field
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Username',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
+                    // Role Tabs Selector: Patient vs Staff vs Admin
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    TextField(
-                      controller: _usernameController,
-                      style: const TextStyle(color: Colors.black87),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'Enter username',
-                        prefixIcon: const Icon(Icons.person_outline),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-
-                    // Password Field
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Password',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      style: const TextStyle(color: Colors.black87),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'Enter password',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Log in button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2563EB),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: _handleLogin,
-                        child: const Text(
-                          'Log in',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-
-                    // Register Here Link
-                    TextButton(
-                      onPressed: widget.onNavigateToRegister,
-                      child: const Text(
-                        'New patient? Register Here',
-                        style: TextStyle(
+                      child: TabBar(
+                        controller: _roleTabController,
+                        indicator: BoxDecoration(
                           color: Colors.white,
-                          decoration: TextDecoration.underline,
-                          fontSize: 13,
+                          borderRadius: BorderRadius.circular(12),
                         ),
+                        labelColor: const Color(0xFF003B81),
+                        unselectedLabelColor: Colors.white70,
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        tabs: const [
+                          Tab(text: 'Patient'),
+                          Tab(text: 'Staff'),
+                          Tab(text: 'Admin'),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 20),
 
-                    // Back button
+                    // Tab Views with Forms
+                    SizedBox(
+                      height: 340,
+                      child: TabBarView(
+                        controller: _roleTabController,
+                        children: [
+                          _buildPatientLoginForm(),
+                          _buildStaffLoginForm(),
+                          _buildAdminLoginForm(),
+                        ],
+                      ),
+                    ),
+
+                    // Back to Home Link
                     TextButton.icon(
                       onPressed: widget.onBackToHome,
                       icon: const Icon(Icons.arrow_back,
                           color: Colors.white70, size: 16),
                       label: const Text(
-                        'Back to Home',
-                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                        'Continue as Guest / Back to Home',
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                     ),
                   ],
@@ -233,10 +228,249 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+  // 1. PATIENT LOGIN FORM (Has Login + Register Account)
+  Widget _buildPatientLoginForm() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTextField('Patient Username', _patientUserCtrl, Icons.person_outline),
+        const SizedBox(height: 14),
+        _buildPasswordField('Password', _patientPassCtrl),
+        const SizedBox(height: 18),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2563EB),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () => _handleLogin('Patient'),
+            child: const Text('Log in as Patient',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // REGISTER ACCOUNT (ONLY FOR PATIENTS - Figure 6 & 7)
+        Center(
+          child: TextButton(
+            onPressed: widget.onNavigateToRegister,
+            child: RichText(
+              text: const TextSpan(
+                text: 'New patient? ',
+                style: TextStyle(color: Colors.white70, fontSize: 13),
+                children: [
+                  TextSpan(
+                    text: 'Register Account Here',
+                    style: TextStyle(
+                      color: Color(0xFF93C5FD),
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 2. CLINIC STAFF LOGIN FORM (LOGIN ONLY - NO REGISTRATION)
+  Widget _buildStaffLoginForm() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Notice banner stating staff accounts are managed by Admin
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFF10B981).withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+                color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            children: const [
+              Icon(Icons.lock_person_rounded,
+                  color: Color(0xFF10B981), size: 16),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Staff portal is restricted. Accounts are created and issued by Clinic Administration.',
+                  style: TextStyle(color: Colors.white70, fontSize: 11),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildTextField('Staff Username', _staffUserCtrl, Icons.badge_outlined),
+        const SizedBox(height: 12),
+        _buildPasswordField('Password', _staffPassCtrl),
+        const SizedBox(height: 18),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () => _handleLogin('Clinic Staff'),
+            child: const Text('Staff Sign In',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 3. ADMINISTRATOR LOGIN FORM (LOGIN ONLY - NO REGISTRATION)
+  Widget _buildAdminLoginForm() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Notice banner stating admin access is restricted
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.purple.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.purpleAccent.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            children: const [
+              Icon(Icons.admin_panel_settings_rounded,
+                  color: Colors.purpleAccent, size: 16),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Administrator governance access only. Registration is disabled for security.',
+                  style: TextStyle(color: Colors.white70, fontSize: 11),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildTextField(
+            'Admin Username', _adminUserCtrl, Icons.security_rounded),
+        const SizedBox(height: 12),
+        _buildPasswordField('Password', _adminPassCtrl),
+        const SizedBox(height: 18),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.purple,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () => _handleLogin('Administrator'),
+            child: const Text('Admin Sign In',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField(
+      String label, TextEditingController controller, IconData icon) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.9),
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(height: 4),
+        TextField(
+          controller: controller,
+          style: const TextStyle(color: Colors.black87, fontSize: 13),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            hintText: 'Enter $label',
+            prefixIcon: Icon(icon, size: 20),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordField(String label, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.9),
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(height: 4),
+        TextField(
+          controller: controller,
+          obscureText: _obscurePassword,
+          style: const TextStyle(color: Colors.black87, fontSize: 13),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            hintText: 'Enter password',
+            prefixIcon: const Icon(Icons.lock_outline, size: 20),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                size: 18,
+              ),
+              onPressed: () {
+                setState(() => _obscurePassword = !_obscurePassword);
+              },
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
+// -----------------------------------------------------------------
+// PATIENT REGISTRATION SCREEN (Figures 7 & 10 from Research Paper)
+// -----------------------------------------------------------------
 class RegistrationScreen extends StatefulWidget {
-  final VoidCallback onRegisterSuccess;
+  final Function(UserAccount user) onRegisterSuccess;
   final VoidCallback onBackToLogin;
 
   const RegistrationScreen({
@@ -287,13 +521,26 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       );
       return;
     }
+
+    final newPatientAccount = UserAccount(
+      id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
+      username: _username.text.trim(),
+      fullName:
+          '${_lastName.text.trim()}, ${_firstName.text.trim()} ${_middleInitial.text.trim()}',
+      email: _email.text.trim(),
+      role: 'Patient',
+      status: 'Active',
+      registeredDate: '11/04/2026',
+    );
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Registration successful! You may now sign in.'),
+        content: Text('Patient registration successful! Welcome to DentiCare.'),
         backgroundColor: Color(0xFF10B981),
       ),
     );
-    widget.onRegisterSuccess();
+
+    widget.onRegisterSuccess(newPatientAccount);
   }
 
   @override
@@ -312,7 +559,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   child: Column(
                     children: const [
                       Text(
-                        'Registration',
+                        'Patient Registration',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -321,7 +568,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        'Create your patient record for DentiCare',
+                        'Create your patient record for DentiCare appointment booking',
                         style: TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                     ],
@@ -341,8 +588,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    Expanded(
-                        child: _buildInputField('Username', _username)),
+                    Expanded(child: _buildInputField('Username', _username)),
                     const SizedBox(width: 8),
                     Expanded(
                         child: _buildInputField('Password', _password,
@@ -365,17 +611,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    Expanded(
-                        child: _buildInputField('First Name', _firstName)),
+                    Expanded(child: _buildInputField('First Name', _firstName)),
                     const SizedBox(width: 8),
                     SizedBox(
                       width: 90,
-                      child:
-                          _buildInputField('M.I.', _middleInitial),
+                      child: _buildInputField('M.I.', _middleInitial),
                     ),
                     const SizedBox(width: 8),
-                    Expanded(
-                        child: _buildInputField('Last Name', _lastName)),
+                    Expanded(child: _buildInputField('Last Name', _lastName)),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -448,7 +691,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 isExpanded: true,
                                 items: ['Female', 'Male', 'Prefer not to say']
                                     .map((s) => DropdownMenuItem(
-                                        value: s, child: Text(s, style: const TextStyle(fontSize: 13))))
+                                        value: s,
+                                        child: Text(s,
+                                            style: const TextStyle(fontSize: 13))))
                                     .toList(),
                                 onChanged: (v) {
                                   if (v != null) {
@@ -470,7 +715,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // Back and Next / Register Buttons
+                // Back and Register Buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -482,7 +727,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             horizontal: 24, vertical: 12),
                       ),
                       onPressed: widget.onBackToLogin,
-                      child: const Text('Back'),
+                      child: const Text('Back to Login'),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -492,7 +737,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             horizontal: 32, vertical: 12),
                       ),
                       onPressed: _submitRegistration,
-                      child: const Text('Next / Submit',
+                      child: const Text('Complete Registration',
                           style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ],
@@ -536,4 +781,3 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 }
-

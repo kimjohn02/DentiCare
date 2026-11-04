@@ -133,6 +133,8 @@ class DentiCareRootShell extends StatefulWidget {
 }
 
 class _DentiCareRootShellState extends State<DentiCareRootShell> {
+  // Current logged in user (starts with Patient Kim Macpao Lupogan)
+  UserAccount? _currentUser = DentalClinicData.sampleUsers[0];
   String _activeRole = 'Patient'; // 'Patient', 'Clinic Staff', 'Administrator'
   int _navIndex = 0; // 0: Home, 1: Book, 2: My Appointments, 3: Account
 
@@ -257,8 +259,63 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
     });
   }
 
+  void _logout() {
+    setState(() {
+      _currentUser = null;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('You have been logged out.'),
+        backgroundColor: Color(0xFF003B81),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // If not logged in, display the Unified Portal Login Gateway
+    if (_currentUser == null) {
+      return LoginScreen(
+        users: _users,
+        onLoginSuccess: (user) {
+          setState(() {
+            _currentUser = user;
+            _activeRole = user.role;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Welcome, ${user.fullName} (${user.role})!'),
+              backgroundColor: const Color(0xFF10B981),
+            ),
+          );
+        },
+        onNavigateToRegister: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (ctx) => RegistrationScreen(
+                onRegisterSuccess: (newPatient) {
+                  _addUser(newPatient);
+                  setState(() {
+                    _currentUser = newPatient;
+                    _activeRole = 'Patient';
+                  });
+                  Navigator.of(ctx).pop();
+                },
+                onBackToLogin: () => Navigator.of(ctx).pop(),
+              ),
+            ),
+          );
+        },
+        onBackToHome: () {
+          setState(() {
+            _currentUser = DentalClinicData.sampleUsers[0];
+            _activeRole = 'Patient';
+            _navIndex = 0;
+          });
+        },
+      );
+    }
+
     final isPatient = _activeRole == 'Patient';
     final isStaff = _activeRole == 'Clinic Staff';
     final isAdmin = _activeRole == 'Administrator';
@@ -287,27 +344,72 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
         onNavigateToBook: () => setState(() => _navIndex = 1),
         onCancelAppointment: _cancelAppointment,
       ),
-      LoginScreen(
-        onLoginSuccess: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Welcome back, Kim Macpao Lupogan!'),
-              backgroundColor: Color(0xFF10B981),
-            ),
-          );
-          setState(() => _navIndex = 0);
-        },
-        onNavigateToRegister: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (ctx) => RegistrationScreen(
-                onRegisterSuccess: () => Navigator.of(ctx).pop(),
-                onBackToLogin: () => Navigator.of(ctx).pop(),
+      // Patient Account Tab with Logout option
+      Scaffold(
+        appBar: AppBar(
+          title: const Text('Patient Account & Session',
+              style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              const CircleAvatar(
+                radius: 40,
+                backgroundColor: Color(0xFF003B81),
+                child: Icon(Icons.person, size: 48, color: Colors.white),
               ),
-            ),
-          );
-        },
-        onBackToHome: () => setState(() => _navIndex = 0),
+              const SizedBox(height: 12),
+              Text(
+                _currentUser!.fullName,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Role: ${_currentUser!.role} • @${_currentUser!.username}',
+                style: const TextStyle(color: Colors.grey, fontSize: 13),
+              ),
+              const SizedBox(height: 24),
+              Card(
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.email_outlined),
+                      title: const Text('Email Address'),
+                      subtitle: Text(_currentUser!.email),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.verified_user_outlined),
+                      title: const Text('Account Status'),
+                      subtitle: Text(_currentUser!.status),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.calendar_today_outlined),
+                      title: const Text('Registration Date'),
+                      subtitle: Text(_currentUser!.registeredDate),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade700,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed: _logout,
+                  icon: const Icon(Icons.logout),
+                  label: const Text('Log Out of DentiCare'),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     ];
 
@@ -321,7 +423,7 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // System / Role Indicator Switcher
+              // Role Indicator & Demo Switcher
               Row(
                 children: [
                   const Icon(Icons.shield_outlined,
@@ -371,24 +473,36 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
                 ],
               ),
 
-              // Global Accessibility & Settings shortcut
-              TextButton.icon(
-                icon: const Icon(Icons.tune, color: Colors.white70, size: 14),
-                label: const Text(
-                  'Settings',
-                  style: TextStyle(color: Colors.white, fontSize: 11),
-                ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => SettingsDialog(
-                      isLargeFont: widget.isLargeFont,
-                      isDarkMode: widget.isDarkMode,
-                      onToggleLargeFont: widget.onToggleLargeFont,
-                      onToggleDarkMode: widget.onToggleDarkMode,
+              // Action Buttons: Settings & Logout
+              Row(
+                children: [
+                  TextButton.icon(
+                    icon:
+                        const Icon(Icons.tune, color: Colors.white70, size: 14),
+                    label: const Text(
+                      'Settings',
+                      style: TextStyle(color: Colors.white, fontSize: 11),
                     ),
-                  );
-                },
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => SettingsDialog(
+                          isLargeFont: widget.isLargeFont,
+                          isDarkMode: widget.isDarkMode,
+                          onToggleLargeFont: widget.onToggleLargeFont,
+                          onToggleDarkMode: widget.onToggleDarkMode,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    tooltip: 'Log Out',
+                    icon: const Icon(Icons.logout_rounded,
+                        color: Colors.white, size: 18),
+                    onPressed: _logout,
+                  ),
+                ],
               ),
             ],
           ),
