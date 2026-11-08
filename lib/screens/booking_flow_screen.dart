@@ -463,7 +463,7 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
             // Dental Service Real Treatment Photo Box (Matches Figure 8)
             Center(
               child: Container(
-                height: 170,
+                height: 180,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
@@ -476,11 +476,8 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                   ],
                 ),
                 clipBehavior: Clip.antiAlias,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    if (_selectedService.imageAsset != null)
-                      Image.asset(
+                child: _selectedService.imageAsset != null
+                    ? Image.asset(
                         _selectedService.imageAsset!,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) => Container(
@@ -492,8 +489,7 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                           ),
                         ),
                       )
-                    else
-                      Container(
+                    : Container(
                         color: const Color(0xFF003B81).withValues(alpha: 0.08),
                         child: Icon(
                           _selectedService.icon,
@@ -501,36 +497,6 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                           color: const Color(0xFF003B81),
                         ),
                       ),
-                    // Gradient overlay with procedure label
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 8),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                              Colors.black.withValues(alpha: 0.75),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                        child: Text(
-                          'Clinical Procedure: ${_selectedService.name}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
             const SizedBox(height: 24),
