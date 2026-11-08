@@ -302,20 +302,46 @@ class DentiCareMainHomeScreen extends StatelessWidget {
             ),
             onPressed: () => _showNotificationSheet(context),
           ),
+          // Direct 1-Click Font Size Toggle (Automatic Enlarge / Reduce)
           IconButton(
-            tooltip: 'Accessibility / Text Size',
-            icon: const Icon(Icons.format_size_rounded),
+            tooltip: isLargeFont
+                ? 'Standard Font Size (Current: Large)'
+                : 'Large Font Size (Current: Standard)',
+            style: IconButton.styleFrom(
+              backgroundColor: isLargeFont
+                  ? const Color(0xFF003B81)
+                  : Colors.transparent,
+              foregroundColor: isLargeFont
+                  ? Colors.white
+                  : (isDarkMode ? Colors.white : const Color(0xFF003B81)),
+            ),
+            icon: const Icon(Icons.format_size_rounded, size: 22),
             onPressed: () {
-              showDialog(
-                context: context,
-                builder: (ctx) => SettingsDialog(
-                  isLargeFont: isLargeFont,
-                  isDarkMode: isDarkMode,
-                  onToggleLargeFont: onToggleLargeFont,
-                  onToggleDarkMode: onToggleDarkMode,
+              final newScale = !isLargeFont;
+              onToggleLargeFont(newScale);
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    newScale
+                        ? '🔤 Large Font Size Enabled (122%)'
+                        : '🔤 Standard Font Size Restored (100%)',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  duration: const Duration(milliseconds: 1400),
+                  behavior: SnackBarBehavior.floating,
                 ),
               );
             },
+          ),
+          IconButton(
+            tooltip: isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+            icon: Icon(
+              isDarkMode ? Icons.wb_sunny_rounded : Icons.nightlight_round,
+              color: isDarkMode ? const Color(0xFFFBBF24) : const Color(0xFF003B81),
+              size: 22,
+            ),
+            onPressed: () => onToggleDarkMode(!isDarkMode),
           ),
           IconButton(
             tooltip: 'Sign In / Account',

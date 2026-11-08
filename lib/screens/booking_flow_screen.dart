@@ -234,37 +234,56 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
           ],
         ),
         actions: [
-          // Accessibility / Settings Trigger (Figure 14)
+          // Direct 1-Click Font Size Toggle (Automatic Enlarge / Reduce)
           IconButton(
-            tooltip: 'Accessibility & Font Settings',
-            icon: const Icon(Icons.format_size_rounded),
+            tooltip: widget.isLargeFont
+                ? 'Standard Font Size (Current: Large)'
+                : 'Large Font Size (Current: Standard)',
+            style: IconButton.styleFrom(
+              backgroundColor: widget.isLargeFont
+                  ? const Color(0xFF003B81)
+                  : Colors.transparent,
+              foregroundColor: widget.isLargeFont
+                  ? Colors.white
+                  : (widget.isDarkMode ? Colors.white : const Color(0xFF003B81)),
+            ),
+            icon: const Icon(Icons.format_size_rounded, size: 22),
             onPressed: () {
-              showDialog(
-                context: context,
-                builder: (ctx) => SettingsDialog(
-                  isLargeFont: widget.isLargeFont,
-                  isDarkMode: widget.isDarkMode,
-                  onToggleLargeFont: widget.onToggleLargeFont,
-                  onToggleDarkMode: widget.onToggleDarkMode,
+              final newScale = !widget.isLargeFont;
+              widget.onToggleLargeFont(newScale);
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    newScale
+                        ? '🔤 Large Font Size Enabled (122%)'
+                        : '🔤 Standard Font Size Restored (100%)',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  duration: const Duration(milliseconds: 1400),
+                  behavior: SnackBarBehavior.floating,
                 ),
               );
             },
           ),
-          // Dark Mode Toggle Switch (Figure 8 & 13)
-          Row(
-            children: [
-              const Text('Dark Mode', style: TextStyle(fontSize: 11)),
-              Transform.scale(
-                scale: 0.8,
-                child: Switch(
-                  value: widget.isDarkMode,
-                  activeThumbColor: const Color(0xFF003B81),
-                  onChanged: widget.onToggleDarkMode,
-                ),
-              ),
-            ],
+          // Theme Toggle: Crescent Moon in Light Mode / Golden Sun in Dark Mode
+          IconButton(
+            tooltip: widget.isDarkMode
+                ? 'Switch to Light Mode'
+                : 'Switch to Dark Mode',
+            icon: Icon(
+              widget.isDarkMode
+                  ? Icons.wb_sunny_rounded
+                  : Icons.nightlight_round,
+              color: widget.isDarkMode
+                  ? const Color(0xFFFBBF24)
+                  : const Color(0xFF003B81),
+              size: 22,
+            ),
+            onPressed: () =>
+                widget.onToggleDarkMode(!widget.isDarkMode),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
         ],
       ),
       body: SingleChildScrollView(

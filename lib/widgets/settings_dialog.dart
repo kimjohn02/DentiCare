@@ -95,8 +95,8 @@ class SettingsDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
-                    isDarkMode ? Icons.dark_mode : Icons.light_mode,
-                    color: const Color(0xFF003B81),
+                    isDarkMode ? Icons.wb_sunny_rounded : Icons.nightlight_round,
+                    color: isDarkMode ? const Color(0xFFFBBF24) : const Color(0xFF003B81),
                   ),
                 ),
                 title: const Text(

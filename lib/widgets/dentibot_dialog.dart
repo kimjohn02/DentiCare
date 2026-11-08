@@ -9,13 +9,26 @@ class DentiBotDialog extends StatefulWidget {
 
 class _DentiBotDialogState extends State<DentiBotDialog> {
   final TextEditingController _messageController = TextEditingController();
-  final List<Map<String, String>> _messages = [
-    {
-      'sender': 'bot',
-      'text':
-          'Good morning! I am DentiBot, your virtual clinic assistant. How can I assist you with your appointment today?',
-    },
-  ];
+  late final List<Map<String, String>> _messages;
+
+  @override
+  void initState() {
+    super.initState();
+    final hour = DateTime.now().hour;
+    final String greeting = (hour >= 5 && hour < 12)
+        ? 'Good morning!'
+        : (hour >= 12 && hour < 18)
+            ? 'Good afternoon!'
+            : 'Good evening!';
+
+    _messages = [
+      {
+        'sender': 'bot',
+        'text':
+            '$greeting I am DentiBot, your virtual clinic assistant. How can I assist you with your appointment today?',
+      },
+    ];
+  }
 
   final List<String> _quickQuestions = [
     'How do I book an appointment?',
@@ -34,7 +47,21 @@ class _DentiBotDialogState extends State<DentiBotDialog> {
     // Determine bot response
     String reply = '';
     final lower = query.toLowerCase();
-    if (lower.contains('book') || lower.contains('how')) {
+    if (lower.contains('hi') ||
+        lower.contains('hello') ||
+        lower.contains('morning') ||
+        lower.contains('afternoon') ||
+        lower.contains('evening') ||
+        lower.contains('hey')) {
+      final hour = DateTime.now().hour;
+      final greeting = (hour >= 5 && hour < 12)
+          ? 'Good morning!'
+          : (hour >= 12 && hour < 18)
+              ? 'Good afternoon!'
+              : 'Good evening!';
+      reply =
+          '$greeting How can I assist you with your dental consultation or booking today?';
+    } else if (lower.contains('book') || lower.contains('how')) {
       reply =
           'To book an appointment, simply follow our 4-step wizard: Select your Service, pick a Dentist, choose an available Date/Time slot, review your Summary, and Confirm!';
     } else if (lower.contains('brac') || lower.contains('cost') || lower.contains('price')) {
