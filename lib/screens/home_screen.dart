@@ -11,6 +11,9 @@ class DentiCareMainHomeScreen extends StatelessWidget {
   final bool isDarkMode;
   final ValueChanged<bool> onToggleLargeFont;
   final ValueChanged<bool> onToggleDarkMode;
+  final List<PatientNotification> notifications;
+  final Function(String notifId)? onMarkAsRead;
+  final VoidCallback? onMarkAllAsRead;
 
   const DentiCareMainHomeScreen({
     super.key,
@@ -21,12 +24,239 @@ class DentiCareMainHomeScreen extends StatelessWidget {
     required this.isDarkMode,
     required this.onToggleLargeFont,
     required this.onToggleDarkMode,
+    this.notifications = const [],
+    this.onMarkAsRead,
+    this.onMarkAllAsRead,
   });
+
+  void _showNotificationSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (sheetContext, setSheetState) {
+          final unread = notifications.where((n) => !n.isRead).length;
+
+          return Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.75,
+            ),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Drag handle
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 12, bottom: 8),
+                    width: 40,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+
+                // Sheet Header
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            'Notifications',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1E293B),
+                            ),
+                          ),
+                          if (unread > 0) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade50,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                    color: Colors.red.shade200, width: 0.8),
+                              ),
+                              child: Text(
+                                '$unread new',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red.shade700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      if (unread > 0 && onMarkAllAsRead != null)
+                        TextButton(
+                          onPressed: () {
+                            setSheetState(() {
+                              onMarkAllAsRead!();
+                            });
+                          },
+                          child: const Text(
+                            'Mark all as read',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              color: Color(0xFF003B81),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+
+                // Notification Items List
+                Flexible(
+                  child: notifications.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.all(32),
+                          child: Center(
+                            child: Text(
+                              'No notifications at the moment.',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        )
+                      : ListView.separated(
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          itemCount: notifications.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (context, idx) {
+                            final notif = notifications[idx];
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(14),
+                              onTap: () {
+                                if (!notif.isRead && onMarkAsRead != null) {
+                                  onMarkAsRead!(notif.id);
+                                  setSheetState(() {});
+                                }
+                                if (notif.routeAction == 'bookings') {
+                                  Navigator.pop(ctx);
+                                  onNavigateToAppointments();
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: notif.isRead
+                                      ? Colors.white
+                                      : const Color(0xFFF0F7FF),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: notif.isRead
+                                        ? Colors.grey.shade200
+                                        : const Color(0xFFBFDBFE),
+                                    width: notif.isRead ? 0.8 : 1.2,
+                                  ),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: notif.color,
+                                      radius: 18,
+                                      child: Icon(notif.icon,
+                                          color: Colors.white, size: 18),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  notif.title,
+                                                  style: TextStyle(
+                                                    fontWeight: notif.isRead
+                                                        ? FontWeight.w600
+                                                        : FontWeight.bold,
+                                                    fontSize: 13,
+                                                    color:
+                                                        const Color(0xFF1E293B),
+                                                  ),
+                                                ),
+                                              ),
+                                              Text(
+                                                notif.timeAgo,
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.grey.shade500,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            notif.message,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: notif.isRead
+                                                  ? Colors.grey.shade600
+                                                  : Colors.grey.shade800,
+                                              height: 1.3,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (!notif.isRead)
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                            left: 6, top: 4),
+                                        width: 8,
+                                        height: 8,
+                                        decoration: const BoxDecoration(
+                                          color: Color(0xFF2563EB),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+                const SizedBox(height: 14),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final unreadCount = notifications.where((n) => !n.isRead).length;
 
     return Scaffold(
       appBar: AppBar(
@@ -62,6 +292,16 @@ class DentiCareMainHomeScreen extends StatelessWidget {
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: 'Notifications',
+            icon: Badge(
+              isLabelVisible: unreadCount > 0,
+              label: Text('$unreadCount'),
+              backgroundColor: Colors.redAccent,
+              child: const Icon(Icons.notifications_none_rounded),
+            ),
+            onPressed: () => _showNotificationSheet(context),
+          ),
           IconButton(
             tooltip: 'Accessibility / Text Size',
             icon: const Icon(Icons.format_size_rounded),
@@ -222,10 +462,27 @@ class DentiCareMainHomeScreen extends StatelessWidget {
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor:
-                        const Color(0xFF003B81).withValues(alpha: 0.1),
-                    child: Icon(srv.icon, color: const Color(0xFF003B81)),
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: srv.imageAsset != null
+                        ? Image.asset(
+                            srv.imageAsset!,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => CircleAvatar(
+                              backgroundColor: const Color(0xFF003B81)
+                                  .withValues(alpha: 0.1),
+                              child: Icon(srv.icon,
+                                  color: const Color(0xFF003B81)),
+                            ),
+                          )
+                        : CircleAvatar(
+                            backgroundColor: const Color(0xFF003B81)
+                                .withValues(alpha: 0.1),
+                            child: Icon(srv.icon,
+                                color: const Color(0xFF003B81)),
+                          ),
                   ),
                   title: Text(
                     srv.name,

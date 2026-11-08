@@ -182,10 +182,44 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
     ),
   ];
 
+  // Patient Notifications State
+  List<PatientNotification> _notifications =
+      List.from(DentalClinicData.sampleNotifications);
+
+  void _markNotificationAsRead(String id) {
+    setState(() {
+      final idx = _notifications.indexWhere((n) => n.id == id);
+      if (idx != -1) {
+        _notifications[idx] = _notifications[idx].copyWith(isRead: true);
+      }
+    });
+  }
+
+  void _markAllNotificationsAsRead() {
+    setState(() {
+      _notifications =
+          _notifications.map((n) => n.copyWith(isRead: true)).toList();
+    });
+  }
+
   // Appointment Actions
   void _addAppointment(AppointmentRecord record) {
     setState(() {
       _appointments.insert(0, record);
+      _notifications.insert(
+        0,
+        PatientNotification(
+          id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+          title: 'Booking Submitted',
+          message:
+              'Your request for ${record.serviceName} on ${record.date} at ${record.time} has been submitted for clinic confirmation.',
+          timeAgo: 'Just now',
+          icon: Icons.bookmark_added_rounded,
+          color: const Color(0xFF2563EB),
+          isRead: false,
+          routeAction: 'bookings',
+        ),
+      );
       if (_activeRole == 'Patient') {
         _navIndex = 2; // Jump to "My Bookings"
       }
@@ -197,10 +231,28 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
     setState(() {
       final idx = _appointments.indexWhere((a) => a.id == aptId);
       if (idx != -1) {
-        _appointments[idx] = _appointments[idx].copyWith(
+        final apt = _appointments[idx];
+        _appointments[idx] = apt.copyWith(
           status: newStatus,
           notes: notes,
         );
+
+        if (newStatus == 'Confirmed') {
+          _notifications.insert(
+            0,
+            PatientNotification(
+              id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+              title: 'Appointment Approved',
+              message:
+                  'Your visit for ${apt.serviceName} on ${apt.date} at ${apt.time} has been confirmed by the clinic staff.',
+              timeAgo: 'Just now',
+              icon: Icons.check_circle_rounded,
+              color: const Color(0xFF10B981),
+              isRead: false,
+              routeAction: 'bookings',
+            ),
+          );
+        }
       }
     });
   }
@@ -339,6 +391,9 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
         onNavigateToBooking: () => setState(() => _navIndex = 1),
         onNavigateToAppointments: () => setState(() => _navIndex = 2),
         onNavigateToAuth: () => setState(() => _navIndex = 3),
+        notifications: _notifications,
+        onMarkAsRead: _markNotificationAsRead,
+        onMarkAllAsRead: _markAllNotificationsAsRead,
       ),
       BookingFlowScreen(
         isDarkMode: widget.isDarkMode,

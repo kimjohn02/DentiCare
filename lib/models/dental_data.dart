@@ -7,6 +7,7 @@ class DentalService {
   final String duration;
   final String cost;
   final IconData icon;
+  final String? imageAsset;
 
   const DentalService({
     required this.id,
@@ -15,6 +16,7 @@ class DentalService {
     required this.duration,
     required this.cost,
     required this.icon,
+    this.imageAsset,
   });
 
   DentalService copyWith({
@@ -23,6 +25,7 @@ class DentalService {
     String? duration,
     String? cost,
     IconData? icon,
+    String? imageAsset,
   }) {
     return DentalService(
       id: id,
@@ -31,6 +34,7 @@ class DentalService {
       duration: duration ?? this.duration,
       cost: cost ?? this.cost,
       icon: icon ?? this.icon,
+      imageAsset: imageAsset ?? this.imageAsset,
     );
   }
 }
@@ -154,6 +158,43 @@ class PatientProfile {
   });
 }
 
+class PatientNotification {
+  final String id;
+  final String title;
+  final String message;
+  final String timeAgo;
+  final IconData icon;
+  final Color color;
+  final bool isRead;
+  final String? routeAction;
+
+  const PatientNotification({
+    required this.id,
+    required this.title,
+    required this.message,
+    required this.timeAgo,
+    required this.icon,
+    required this.color,
+    this.isRead = false,
+    this.routeAction,
+  });
+
+  PatientNotification copyWith({
+    bool? isRead,
+  }) {
+    return PatientNotification(
+      id: id,
+      title: title,
+      message: message,
+      timeAgo: timeAgo,
+      icon: icon,
+      color: color,
+      isRead: isRead ?? this.isRead,
+      routeAction: routeAction,
+    );
+  }
+}
+
 class UserAccount {
   final String id;
   final String username;
@@ -206,6 +247,7 @@ class DentalClinicData {
       duration: '1 hour to 2 hours',
       cost: 'P500.00 - P800.00',
       icon: Icons.architecture_rounded,
+      imageAsset: 'assets/images/services/dental_bracing.png',
     ),
     DentalService(
       id: 'cleaning',
@@ -215,6 +257,7 @@ class DentalClinicData {
       duration: '45 mins to 1 hour',
       cost: 'P600.00 - P1,200.00',
       icon: Icons.clean_hands_rounded,
+      imageAsset: 'assets/images/services/teeth_cleaning.png',
     ),
     DentalService(
       id: 'whitening',
@@ -224,6 +267,7 @@ class DentalClinicData {
       duration: '1 hour',
       cost: 'P2,000.00 - P3,500.00',
       icon: Icons.auto_awesome_rounded,
+      imageAsset: 'assets/images/services/teeth_whitening.png',
     ),
     DentalService(
       id: 'implants',
@@ -233,6 +277,7 @@ class DentalClinicData {
       duration: '1.5 hours to 3 hours',
       cost: 'P15,000.00 - P25,000.00',
       icon: Icons.healing_rounded,
+      imageAsset: 'assets/images/services/dental_implants.png',
     ),
   ];
 
@@ -397,6 +442,51 @@ class DentalClinicData {
       role: 'Administrator',
       status: 'Active',
       registeredDate: '01/10/2026',
+    ),
+  ];
+
+  static List<PatientNotification> sampleNotifications = [
+    const PatientNotification(
+      id: 'notif_1',
+      title: 'Appointment Approved',
+      message:
+          'Your appointment for Dental Bracing on 09/11/2026 at 8:00 AM has been confirmed by Dr. Michaela Jordan.',
+      timeAgo: '5m ago',
+      icon: Icons.check_circle_rounded,
+      color: Color(0xFF10B981),
+      isRead: false,
+      routeAction: 'bookings',
+    ),
+    const PatientNotification(
+      id: 'notif_2',
+      title: 'Dental Chair Ready',
+      message:
+          'Dental Chair #1 is sanitized and ready for your procedure. Please approach the clinic reception.',
+      timeAgo: '25m ago',
+      icon: Icons.chair_rounded,
+      color: Color(0xFFF59E0B),
+      isRead: false,
+    ),
+    const PatientNotification(
+      id: 'notif_3',
+      title: 'Appointment Reminder',
+      message:
+          'Reminder: You have a scheduled appointment tomorrow at 8:00 AM. Please arrive 10 minutes early.',
+      timeAgo: 'Yesterday',
+      icon: Icons.access_time_filled_rounded,
+      color: Color(0xFF2563EB),
+      isRead: true,
+      routeAction: 'bookings',
+    ),
+    const PatientNotification(
+      id: 'notif_4',
+      title: 'Post-Treatment Care Note',
+      message:
+          'Avoid extremely hot or sugary drinks for the next 48 hours for best whitening results.',
+      timeAgo: '3d ago',
+      icon: Icons.health_and_safety_rounded,
+      color: Color(0xFF0D9488),
+      isRead: true,
     ),
   ];
 }

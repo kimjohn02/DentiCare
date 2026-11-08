@@ -264,22 +264,7 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
               ),
             ],
           ),
-          // DentiBot Quick Launch Icon (Figure 15)
-          IconButton(
-            tooltip: 'Ask DentiBot',
-            icon: const CircleAvatar(
-              radius: 14,
-              backgroundColor: Color(0xFF10B981),
-              child: Icon(Icons.smart_toy_rounded, size: 16, color: Colors.white),
-            ),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (ctx) => const DentiBotDialog(),
-              );
-            },
-          ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
         ],
       ),
       body: SingleChildScrollView(
@@ -475,34 +460,73 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
             ),
             const SizedBox(height: 18),
 
-            // Dental Illustration Graphic Box (Matches Figure 8)
+            // Dental Service Real Treatment Photo Box (Matches Figure 8)
             Center(
               child: Container(
-                height: 140,
+                height: 170,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFF003B81).withValues(alpha: 0.08),
-                      const Color(0xFF00A8CC).withValues(alpha: 0.12),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      _selectedService.icon,
-                      size: 54,
-                      color: const Color(0xFF003B81),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Target Procedure: ${_selectedService.name}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                  ],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (_selectedService.imageAsset != null)
+                      Image.asset(
+                        _selectedService.imageAsset!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: const Color(0xFF003B81).withValues(alpha: 0.08),
+                          child: Icon(
+                            _selectedService.icon,
+                            size: 54,
+                            color: const Color(0xFF003B81),
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        color: const Color(0xFF003B81).withValues(alpha: 0.08),
+                        child: Icon(
+                          _selectedService.icon,
+                          size: 54,
+                          color: const Color(0xFF003B81),
+                        ),
+                      ),
+                    // Gradient overlay with procedure label
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              Colors.black.withValues(alpha: 0.75),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                        child: Text(
+                          'Clinical Procedure: ${_selectedService.name}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
                       ),
                     ),
                   ],

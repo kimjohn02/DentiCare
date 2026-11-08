@@ -632,8 +632,22 @@ class _AdminScreenState extends State<AdminScreen>
                         children: [
                           Row(
                             children: [
-                              Icon(srv.icon,
-                                  color: const Color(0xFF003B81), size: 24),
+                              if (srv.imageAsset != null)
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.asset(
+                                    srv.imageAsset!,
+                                    width: 32,
+                                    height: 32,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Icon(srv.icon,
+                                        color: const Color(0xFF003B81),
+                                        size: 24),
+                                  ),
+                                )
+                              else
+                                Icon(srv.icon,
+                                    color: const Color(0xFF003B81), size: 24),
                               const SizedBox(width: 10),
                               Text(
                                 srv.name,
