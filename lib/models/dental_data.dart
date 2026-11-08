@@ -46,6 +46,7 @@ class Dentist {
   final String specialization;
   final String qualification;
   final IconData avatarIcon;
+  final String? imageAsset;
 
   const Dentist({
     required this.id,
@@ -54,6 +55,7 @@ class Dentist {
     required this.specialization,
     required this.qualification,
     required this.avatarIcon,
+    this.imageAsset,
   });
 
   Dentist copyWith({
@@ -62,6 +64,7 @@ class Dentist {
     String? specialization,
     String? qualification,
     IconData? avatarIcon,
+    String? imageAsset,
   }) {
     return Dentist(
       id: id,
@@ -70,6 +73,7 @@ class Dentist {
       specialization: specialization ?? this.specialization,
       qualification: qualification ?? this.qualification,
       avatarIcon: avatarIcon ?? this.avatarIcon,
+      imageAsset: imageAsset ?? this.imageAsset,
     );
   }
 }
@@ -291,59 +295,97 @@ class DentalClinicData {
       avatarIcon: Icons.groups_rounded,
     ),
     Dentist(
-      id: 'dr_jordan',
-      name: 'Dr. Michaela Jordan',
+      id: 'dr_grace',
+      name: 'Dr. Grace Cabilles',
       experience: '6 years of experience',
-      specialization: 'Orthodontics\nGeneral Dentistry\nCosmetic Dentistry',
-      qualification: 'Orthodontics\nGeneral Dentistry\nCosmetic Dentistry',
+      specialization: 'Orthodontics\nCosmetic Dentistry\nGeneral Dentistry',
+      qualification: 'Doctor of Dental Medicine (DMD)\nBoard-Certified Orthodontics Specialist\nFellow, Philippine Dental Association',
       avatarIcon: Icons.medical_services_rounded,
+      imageAsset: 'assets/images/dentists/grace_cabilles.png',
     ),
     Dentist(
-      id: 'dr_cruz',
-      name: 'Dr. Nathaniel Cruz',
-      experience: '8 years of experience',
-      specialization: 'Endodontics\nRestorative Care\nPediatric Dentistry',
-      qualification: 'Doctor of Dental Medicine (DMD)\nEndodontics Specialist',
+      id: 'dr_joana',
+      name: 'Dr. Joana Plewa',
+      experience: '7 years of experience',
+      specialization: 'Pediatric Dentistry\nOral Prophylaxis\nRestorative Care',
+      qualification: 'Doctor of Dental Medicine (DMD)\nCertified Pediatric Dental Specialist\nPRC Lic. Verified',
       avatarIcon: Icons.health_and_safety_rounded,
+      imageAsset: 'assets/images/dentists/joana_plewa.png',
+    ),
+    Dentist(
+      id: 'dr_ryan',
+      name: 'Dr. Ryan Luza',
+      experience: '8 years of experience',
+      specialization: 'Endodontics\nDental Surgery\nProsthodontics',
+      qualification: 'Doctor of Dental Medicine (DMD)\nEndodontics & Oral Surgery Specialist\nFellow, International Congress of Oral Implantologists',
+      avatarIcon: Icons.masks_rounded,
+      imageAsset: 'assets/images/dentists/ryan_luza.png',
+    ),
+    Dentist(
+      id: 'dr_niere',
+      name: 'Dr. Niere Lupmac',
+      experience: '5 years of experience',
+      specialization: 'Periodontics\nTeeth Whitening\nPreventive Dentistry',
+      qualification: 'Doctor of Dental Medicine (DMD)\nAesthetic Dentistry Specialist\nPhilippine Dental Association Member',
+      avatarIcon: Icons.volunteer_activism_rounded,
+      imageAsset: 'assets/images/dentists/niere_lupmac.png',
     ),
   ];
 
   static const List<AppointmentSlot> availableSlots = [
     AppointmentSlot(
       id: 's1',
-      dentistName: 'Dr. Michaela Jordan',
+      dentistName: 'Dr. Grace Cabilles',
       date: '09/11/2026',
       time: '8:00 AM',
     ),
     AppointmentSlot(
       id: 's2',
-      dentistName: 'Dr. Michaela Jordan',
+      dentistName: 'Dr. Grace Cabilles',
       date: '09/11/2026',
       time: '10:00 AM',
     ),
     AppointmentSlot(
       id: 's3',
-      dentistName: 'Dr. Nathaniel Cruz',
+      dentistName: 'Dr. Joana Plewa',
       date: '09/11/2026',
       time: '1:00 PM',
     ),
     AppointmentSlot(
       id: 's4',
-      dentistName: 'Dr. Nathaniel Cruz',
+      dentistName: 'Dr. Ryan Luza',
       date: '09/11/2026',
-      time: '7:00 PM',
+      time: '3:30 PM',
     ),
     AppointmentSlot(
       id: 's5',
-      dentistName: 'Dr. Michaela Jordan',
+      dentistName: 'Dr. Niere Lupmac',
+      date: '09/11/2026',
+      time: '5:00 PM',
+    ),
+    AppointmentSlot(
+      id: 's6',
+      dentistName: 'Dr. Grace Cabilles',
       date: '09/12/2026',
       time: '9:00 AM',
     ),
     AppointmentSlot(
-      id: 's6',
-      dentistName: 'Dr. Nathaniel Cruz',
+      id: 's7',
+      dentistName: 'Dr. Joana Plewa',
       date: '09/12/2026',
-      time: '2:30 PM',
+      time: '11:00 AM',
+    ),
+    AppointmentSlot(
+      id: 's8',
+      dentistName: 'Dr. Ryan Luza',
+      date: '09/12/2026',
+      time: '2:00 PM',
+    ),
+    AppointmentSlot(
+      id: 's9',
+      dentistName: 'Dr. Niere Lupmac',
+      date: '09/12/2026',
+      time: '4:00 PM',
     ),
   ];
 
@@ -450,7 +492,7 @@ class DentalClinicData {
       id: 'notif_1',
       title: 'Appointment Approved',
       message:
-          'Your appointment for Dental Bracing on 09/11/2026 at 8:00 AM has been confirmed by Dr. Michaela Jordan.',
+          'Your appointment for Dental Bracing on 09/11/2026 at 8:00 AM has been confirmed by Dr. Grace Cabilles.',
       timeAgo: '5m ago',
       icon: Icons.check_circle_rounded,
       color: Color(0xFF10B981),

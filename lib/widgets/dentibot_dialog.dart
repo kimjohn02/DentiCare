@@ -45,7 +45,7 @@ class _DentiBotDialogState extends State<DentiBotDialog> {
           'Our clinic is open Monday to Saturday from 8:00 AM to 7:00 PM. Urgent dental inquiries can call our emergency hotline.';
     } else if (lower.contains('dentist') || lower.contains('doctor')) {
       reply =
-          'You can choose Dr. Michaela Jordan (Orthodontics), Dr. Nathaniel Cruz (Endodontics), or select "Any Available Dentist" for faster booking.';
+          'You can choose Dr. Grace Cabilles (Orthodontics), Dr. Joana Plewa (Pediatric Dentistry), Dr. Ryan Luza (Endodontics & Surgery), Dr. Niere Lupmac (Periodontics), or select "Any Available Dentist" for faster booking.';
     } else {
       reply =
           'Thank you for reaching out! You can follow the step-by-step guidance on your screen to proceed with your booking, or tap one of the suggested FAQs below.';

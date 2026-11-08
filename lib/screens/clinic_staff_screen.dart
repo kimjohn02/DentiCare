@@ -519,8 +519,10 @@ class _ClinicStaffScreenState extends State<ClinicStaffScreen>
                       ),
                       items: [
                         'All Dentists',
-                        'Dr. Michaela Jordan',
-                        'Dr. Nathaniel Cruz',
+                        'Dr. Grace Cabilles',
+                        'Dr. Joana Plewa',
+                        'Dr. Ryan Luza',
+                        'Dr. Niere Lupmac',
                         'Any Available Dentist',
                       ]
                           .map((d) => DropdownMenuItem(
