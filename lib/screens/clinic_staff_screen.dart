@@ -23,6 +23,7 @@ class ClinicStaffScreen extends StatefulWidget {
 class _ClinicStaffScreenState extends State<ClinicStaffScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _currentIndex = 0;
 
   // Schedule Filters
   String _selectedDoctorFilter = 'All Dentists';
@@ -37,6 +38,14 @@ class _ClinicStaffScreenState extends State<ClinicStaffScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging &&
+          _currentIndex != _tabController.index) {
+        setState(() {
+          _currentIndex = _tabController.index;
+        });
+      }
+    });
   }
 
   @override
@@ -212,35 +221,22 @@ class _ClinicStaffScreenState extends State<ClinicStaffScreen>
         ),
         actions: [
           if (widget.onLogout != null)
-            IconButton(
-              icon: const Icon(Icons.logout_rounded),
-              tooltip: 'Log Out of Staff Portal',
-              onPressed: widget.onLogout,
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+              child: TextButton.icon(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.redAccent,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                ),
+                icon: const Icon(Icons.logout_rounded, size: 18),
+                label: const Text(
+                  'Log Out',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+                onPressed: widget.onLogout,
+              ),
             ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: const Color(0xFF003B81),
-          indicatorColor: const Color(0xFF003B81),
-          tabs: [
-            Tab(
-              icon: Badge(
-                isLabelVisible: pendingCount > 0,
-                label: Text('$pendingCount'),
-                child: const Icon(Icons.inbox_rounded),
-              ),
-              text: 'Approval Queue ($pendingCount)',
-            ),
-            Tab(
-              icon: const Icon(Icons.calendar_month_rounded),
-              text: 'Daily Schedule',
-            ),
-            Tab(
-              icon: const Icon(Icons.folder_shared_rounded),
-              text: 'Patient Records',
-            ),
-          ],
-        ),
       ),
       body: Column(
         children: [
@@ -271,6 +267,42 @@ class _ClinicStaffScreenState extends State<ClinicStaffScreen>
                 _buildPatientRecordsTab(),
               ],
             ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (idx) {
+          setState(() {
+            _currentIndex = idx;
+            _tabController.animateTo(idx);
+          });
+        },
+        destinations: [
+          NavigationDestination(
+            icon: Badge(
+              isLabelVisible: pendingCount > 0,
+              label: Text('$pendingCount'),
+              child: const Icon(Icons.inbox_outlined),
+            ),
+            selectedIcon: Badge(
+              isLabelVisible: pendingCount > 0,
+              label: Text('$pendingCount'),
+              child: const Icon(Icons.inbox_rounded, color: Color(0xFF003B81)),
+            ),
+            label: 'Approval Queue',
+          ),
+          const NavigationDestination(
+            icon: Icon(Icons.calendar_month_outlined),
+            selectedIcon:
+                Icon(Icons.calendar_month_rounded, color: Color(0xFF003B81)),
+            label: 'Schedule',
+          ),
+          const NavigationDestination(
+            icon: Icon(Icons.folder_shared_outlined),
+            selectedIcon:
+                Icon(Icons.folder_shared_rounded, color: Color(0xFF003B81)),
+            label: 'Patient Records',
           ),
         ],
       ),

@@ -34,6 +34,7 @@ class AdminScreen extends StatefulWidget {
 class _AdminScreenState extends State<AdminScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _currentIndex = 0;
 
   // User Management State
   String _selectedRoleFilter = 'All';
@@ -43,6 +44,14 @@ class _AdminScreenState extends State<AdminScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging &&
+          _currentIndex != _tabController.index) {
+        setState(() {
+          _currentIndex = _tabController.index;
+        });
+      }
+    });
   }
 
   @override
@@ -338,24 +347,22 @@ class _AdminScreenState extends State<AdminScreen>
         ),
         actions: [
           if (widget.onLogout != null)
-            IconButton(
-              icon: const Icon(Icons.logout_rounded),
-              tooltip: 'Log Out of Admin Portal',
-              onPressed: widget.onLogout,
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+              child: TextButton.icon(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.redAccent,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                ),
+                icon: const Icon(Icons.logout_rounded, size: 18),
+                label: const Text(
+                  'Log Out',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+                onPressed: widget.onLogout,
+              ),
             ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: const Color(0xFF003B81),
-          indicatorColor: const Color(0xFF003B81),
-          isScrollable: true,
-          tabs: const [
-            Tab(icon: Icon(Icons.manage_accounts_rounded), text: 'User Accounts'),
-            Tab(icon: Icon(Icons.medical_information_rounded), text: 'Services Catalog'),
-            Tab(icon: Icon(Icons.people_outline_rounded), text: 'Dentist Roster'),
-            Tab(icon: Icon(Icons.insights_rounded), text: 'Clinic Analytics'),
-          ],
-        ),
       ),
       body: TabBarView(
         controller: _tabController,
@@ -364,6 +371,41 @@ class _AdminScreenState extends State<AdminScreen>
           _buildServicesCatalogTab(),
           _buildDentistRosterTab(),
           _buildAnalyticsTab(),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (idx) {
+          setState(() {
+            _currentIndex = idx;
+            _tabController.animateTo(idx);
+          });
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.manage_accounts_outlined),
+            selectedIcon: Icon(Icons.manage_accounts_rounded,
+                color: Color(0xFF003B81)),
+            label: 'Users',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.medical_information_outlined),
+            selectedIcon: Icon(Icons.medical_information_rounded,
+                color: Color(0xFF003B81)),
+            label: 'Services',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.people_outline_rounded),
+            selectedIcon:
+                Icon(Icons.people_rounded, color: Color(0xFF003B81)),
+            label: 'Dentists',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.insights_outlined),
+            selectedIcon:
+                Icon(Icons.insights_rounded, color: Color(0xFF003B81)),
+            label: 'Analytics',
+          ),
         ],
       ),
     );
@@ -728,7 +770,7 @@ class _AdminScreenState extends State<AdminScreen>
           ),
           const SizedBox(height: 14),
 
-          // Top Row Metrics Cards
+          // 2 Metrics Cards in each line (Icon Left, Text Center, Value Right)
           Row(
             children: [
               Expanded(
@@ -738,7 +780,7 @@ class _AdminScreenState extends State<AdminScreen>
                     Icons.calendar_month_rounded,
                     const Color(0xFF2563EB)),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: _buildMetricCard(
                     'Registered Users',
@@ -748,7 +790,7 @@ class _AdminScreenState extends State<AdminScreen>
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -758,7 +800,7 @@ class _AdminScreenState extends State<AdminScreen>
                     Icons.task_alt_rounded,
                     Colors.purple),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: _buildMetricCard(
                     'Cancellation Rate',
@@ -856,27 +898,48 @@ class _AdminScreenState extends State<AdminScreen>
   Widget _buildMetricCard(
       String title, String value, IconData icon, Color color) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.25)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Icon at the left side
           CircleAvatar(
-            backgroundColor: color,
-            radius: 16,
-            child: Icon(icon, color: Colors.white, size: 18),
+            backgroundColor: color.withValues(alpha: 0.18),
+            radius: 15,
+            child: Icon(icon, color: color, size: 16),
           ),
-          const SizedBox(height: 12),
-          Text(value,
+          const SizedBox(width: 6),
+          // Text in the center
+          Expanded(
+            child: Text(
+              title.toUpperCase(),
+              textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: 22, fontWeight: FontWeight.bold, color: color)),
-          const SizedBox(height: 2),
-          Text(title,
-              style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: color,
+                letterSpacing: 0.3,
+                height: 1.2,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 6),
+          // Numeric value at the right side
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
         ],
       ),
     );
