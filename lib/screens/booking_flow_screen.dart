@@ -927,129 +927,406 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
     );
   }
 
-  // STEP 3: Appointment Summary & Validation (Figure 11 - Evaluator Priority #1)
+  // STEP 3: Appointment Summary & Validation (Polished Digital Pass)
   Widget _buildStep3AppointmentSummary() {
     final isDark = widget.isDarkMode;
 
     return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
-        padding: const EdgeInsets.all(22),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Center(
-              child: Text(
-                'Appointment Summary',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF003B81),
-                ),
-              ),
-            ),
-            const SizedBox(height: 6),
-            const Center(
-              child: Text(
-                'Please review and verify your details before confirming submission.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ),
-            const Divider(height: 28),
-
-            // Patient Editable Info Box
-            _buildSummaryRowWithInput(
-                'Patient Name', _nameController, Icons.person),
-            const SizedBox(height: 12),
-            _buildSummaryStaticRow(
-                'Appointment Date', _selectedDate, Icons.calendar_today),
-            const SizedBox(height: 12),
-            _buildSummaryStaticRow('Appointment Time',
-                _selectedSlot?.time ?? '8:00 AM', Icons.access_time),
-            const SizedBox(height: 12),
-            _buildSummaryStaticRow('Service Selected', _selectedService.name,
-                Icons.medical_services_outlined),
-            const SizedBox(height: 12),
-            _buildSummaryStaticRow('Dentist Selected', _selectedDentist.name,
-                Icons.person_pin_rounded),
-            const SizedBox(height: 12),
-            _buildSummaryRowWithInput(
-                'Contact Number', _contactController, Icons.phone),
-            const SizedBox(height: 12),
-            _buildSummaryRowWithInput('Email', _emailController, Icons.email),
-            const SizedBox(height: 16),
-
-            // Estimated Cost & Notice Box
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? const Color(0xFF334155)
-                    : const Color(0xFFF0FDF4),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
-              ),
-              child: Row(
+            // Card Header with Icon Badge
+            Center(
+              child: Column(
                 children: [
-                  const Icon(Icons.info_outline, color: Color(0xFF10B981)),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Estimated Fee: ${_selectedService.cost} • Payment upon clinic arrival.',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF003B81).withValues(alpha: 0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.assignment_turned_in_rounded,
+                      color: Color(0xFF003B81),
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Appointment Summary',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF003B81),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Please review your booking details before confirming.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 18),
 
-            // Edit & Confirm Buttons (Matches Figure 11)
+            // SECTION 1: Schedule & Treatment
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF334155) : const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isDark ? Colors.grey.shade700 : const Color(0xFFE2E8F0),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.event_available_rounded,
+                          size: 16, color: Color(0xFF003B81)),
+                      const SizedBox(width: 6),
+                      Text(
+                        'SCHEDULE & TREATMENT',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                          color: isDark
+                              ? Colors.grey.shade300
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Service Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Service:',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark
+                              ? Colors.grey.shade400
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color:
+                              const Color(0xFF003B81).withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: const Color(0xFF003B81).withValues(alpha: 0.15),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(_selectedService.icon,
+                                size: 14, color: const Color(0xFF003B81)),
+                            const SizedBox(width: 5),
+                            Text(
+                              _selectedService.name,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF003B81),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  // Dentist Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Dentist:',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark
+                              ? Colors.grey.shade400
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
+                      Text(
+                        _selectedDentist.name,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Divider(
+                    height: 1,
+                    color: isDark ? Colors.grey.shade700 : const Color(0xFFE2E8F0),
+                  ),
+                  const SizedBox(height: 10),
+                  // Date & Time Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Date & Time:',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark
+                              ? Colors.grey.shade400
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.grey.shade700
+                                : Colors.grey.shade300,
+                          ),
+                        ),
+                        child: RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark ? Colors.white : Colors.black87,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            children: [
+                              TextSpan(text: '$_selectedDate  •  '),
+                              TextSpan(
+                                text: _selectedSlot?.time ?? '8:00 AM',
+                                style: const TextStyle(
+                                  color: Color(0xFF003B81),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // SECTION 2: Patient Information
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF334155) : const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isDark ? Colors.grey.shade700 : const Color(0xFFE2E8F0),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.person_pin_rounded,
+                              size: 16, color: Color(0xFF003B81)),
+                          const SizedBox(width: 6),
+                          Text(
+                            'PATIENT INFORMATION',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                              color: isDark
+                                  ? Colors.grey.shade300
+                                  : const Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
+                      ),
+                      InkWell(
+                        onTap: _showEditPatientDetailsDialog,
+                        borderRadius: BorderRadius.circular(6),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit,
+                                  size: 13, color: Color(0xFFF59E0B)),
+                              SizedBox(width: 3),
+                              Text(
+                                'Edit',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFF59E0B),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _buildCleanReviewRow(
+                    Icons.person_outline_rounded,
+                    'Name:',
+                    _nameController.text.trim().isEmpty
+                        ? 'Lupogan, Kim Macpao'
+                        : _nameController.text.trim(),
+                    isDark,
+                  ),
+                  const SizedBox(height: 10),
+                  _buildCleanReviewRow(
+                    Icons.phone_outlined,
+                    'Contact:',
+                    _contactController.text.trim().isEmpty
+                        ? '0987654321'
+                        : _contactController.text.trim(),
+                    isDark,
+                  ),
+                  const SizedBox(height: 10),
+                  _buildCleanReviewRow(
+                    Icons.mail_outline_rounded,
+                    'Email:',
+                    _emailController.text.trim().isEmpty
+                        ? 'kim@gmail.com'
+                        : _emailController.text.trim(),
+                    isDark,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // SECTION 3: Estimated Cost & Notice Box
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF1E3A2F)
+                    : const Color(0xFFECFDF5),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.info_outline,
+                      color: Color(0xFF10B981), size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Estimated Fee: ${_selectedService.cost}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: isDark
+                                ? const Color(0xFF6EE7B7)
+                                : const Color(0xFF065F46),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Payment will be settled upon arrival at the clinic reception.',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark
+                                ? Colors.grey.shade300
+                                : const Color(0xFF047857),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 22),
+
+            // Action Buttons (Outlined Edit Details + Elevated Confirm)
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF59E0B), // Amber Edit
-                      foregroundColor: Colors.white,
+                  flex: 1,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: BorderSide(
+                        color: isDark
+                            ? Colors.grey.shade600
+                            : Colors.grey.shade300,
+                      ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    icon: const Icon(Icons.edit_note_rounded),
-                    label: const Text(
-                      'Edit',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    icon: const Icon(Icons.edit_note_rounded,
+                        color: Color(0xFFF59E0B)),
+                    label: Text(
+                      'Edit Details',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: isDark ? Colors.white : const Color(0xFF334155),
+                      ),
                     ),
                     onPressed: () {
-                      // Takes patient back to Step 0 without losing their data
                       setState(() {
                         _currentStep = 0;
                       });
                     },
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 12),
                 Expanded(
+                  flex: 1,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF10B981), // Green Confirm
                       foregroundColor: Colors.white,
+                      elevation: 2,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    icon: const Icon(Icons.check_circle_outline_rounded),
+                    icon: const Icon(Icons.check_circle_rounded, size: 18),
                     label: const Text(
                       'Confirm',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                     onPressed: _confirmAndSubmit,
                   ),
@@ -1062,52 +1339,108 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
     );
   }
 
-  Widget _buildSummaryStaticRow(String label, String value, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: const Color(0xFF003B81)),
-        const SizedBox(width: 10),
-        SizedBox(
-          width: 130,
-          child: Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+  void _showEditPatientDetailsDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Row(
+            children: [
+              Icon(Icons.edit_note_rounded, color: Color(0xFF003B81)),
+              SizedBox(width: 8),
+              Text(
+                'Edit Patient Details',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF003B81),
+                ),
+              ),
+            ],
           ),
-        ),
-        const Text(': '),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(fontSize: 13),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Patient Name',
+                    prefixIcon: Icon(Icons.person_outline),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _contactController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'Contact Number',
+                    prefixIcon: Icon(Icons.phone_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'Email Address',
+                    prefixIcon: Icon(Icons.email_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF003B81),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () {
+                setState(() {});
+                Navigator.pop(ctx);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildSummaryRowWithInput(
-      String label, TextEditingController controller, IconData icon) {
+  Widget _buildCleanReviewRow(
+      IconData icon, String label, String value, bool isDark) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF003B81)),
-        const SizedBox(width: 10),
-        SizedBox(
-          width: 130,
-          child: Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+        Icon(icon,
+            size: 16,
+            color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B)),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
           ),
         ),
-        const Text(': '),
-        Expanded(
-          child: TextField(
-            controller: controller,
-            style: const TextStyle(fontSize: 13),
-            decoration: const InputDecoration(
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              border: UnderlineInputBorder(),
-            ),
+        const Spacer(),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
