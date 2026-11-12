@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/dental_data.dart';
 import '../widgets/dentibot_dialog.dart';
-import '../widgets/settings_dialog.dart';
 
 class DentiCareMainHomeScreen extends StatelessWidget {
   final VoidCallback onNavigateToBooking;
@@ -140,7 +139,7 @@ class DentiCareMainHomeScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
                           itemCount: notifications.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               const SizedBox(height: 10),
                           itemBuilder: (context, idx) {
                             final notif = notifications[idx];
@@ -496,7 +495,7 @@ class DentiCareMainHomeScreen extends StatelessWidget {
                             width: 50,
                             height: 50,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => CircleAvatar(
+                            errorBuilder: (_, _, _) => CircleAvatar(
                               backgroundColor: const Color(0xFF003B81)
                                   .withValues(alpha: 0.1),
                               child: Icon(srv.icon,

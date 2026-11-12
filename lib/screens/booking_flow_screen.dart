@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/dental_data.dart';
-import '../widgets/dentibot_dialog.dart';
-import '../widgets/settings_dialog.dart';
 
 class BookingFlowScreen extends StatefulWidget {
   final bool isDarkMode;
@@ -1830,30 +1828,6 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                   color: Color(0xFF003B81))),
         ],
       ),
-    );
-  }
-
-  Widget _buildDentistInfoLine(String title, String content) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          content,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
     );
   }
 }

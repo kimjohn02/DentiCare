@@ -640,7 +640,7 @@ class _AdminScreenState extends State<AdminScreen>
                                     width: 32,
                                     height: 32,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Icon(srv.icon,
+                                    errorBuilder: (_, _, _) => Icon(srv.icon,
                                         color: const Color(0xFF003B81),
                                         size: 24),
                                   ),
