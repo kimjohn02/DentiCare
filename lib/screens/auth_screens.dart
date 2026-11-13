@@ -386,6 +386,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _birthday = TextEditingController();
   final _contactNumber = TextEditingController();
   String _selectedSex = 'Female';
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -452,7 +453,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 32, vertical: 30),
+                    horizontal: 20, vertical: 26),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -496,6 +497,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           const SizedBox(height: 4),
                           const Text(
                             'Create your patient record for DentiCare appointment booking',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                                 color: Color(0xFF64748B), fontSize: 12),
                           ),
@@ -522,17 +524,38 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                     const Divider(height: 16),
                     const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: _buildInputField('Username', _username)),
-                        const SizedBox(width: 10),
-                        Expanded(
-                            child: _buildInputField('Password', _password,
-                                isPassword: true)),
-                        const SizedBox(width: 10),
-                        Expanded(child: _buildInputField('Email', _email)),
-                      ],
+                    _buildInputField(
+                      'Username',
+                      _username,
+                      hintText: 'Enter desired username',
+                      prefixIcon: Icons.person_outline,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildInputField(
+                      'Email Address',
+                      _email,
+                      hintText: 'Enter your email address',
+                      keyboardType: TextInputType.emailAddress,
+                      prefixIcon: Icons.email_outlined,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildInputField(
+                      'Password',
+                      _password,
+                      hintText: 'Enter secure password',
+                      isPassword: _obscurePassword,
+                      prefixIcon: Icons.lock_outline,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          size: 18,
+                          color: const Color(0xFF64748B),
+                        ),
+                        onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword),
+                      ),
                     ),
                     const SizedBox(height: 24),
 
@@ -554,27 +577,40 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                     const Divider(height: 16),
                     const SizedBox(height: 4),
+                    // First Name & M.I.
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                            child:
-                                _buildInputField('First Name', _firstName)),
-                        const SizedBox(width: 10),
-                        SizedBox(
-                          width: 85,
-                          child:
-                              _buildInputField('M.I.', _middleInitial),
+                          child: _buildInputField(
+                            'First Name',
+                            _firstName,
+                            hintText: 'First name',
+                          ),
                         ),
                         const SizedBox(width: 10),
-                        Expanded(
-                            child: _buildInputField('Last Name', _lastName)),
+                        SizedBox(
+                          width: 72,
+                          child: _buildInputField(
+                            'M.I.',
+                            _middleInitial,
+                            hintText: 'M.I.',
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
+                    _buildInputField(
+                      'Last Name',
+                      _lastName,
+                      hintText: 'Enter last name',
+                    ),
+                    const SizedBox(height: 12),
+                    // Birthday & Sex in clean 2-column row
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          flex: 2,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -616,7 +652,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                     },
                                   ),
                                   contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 10),
+                                      horizontal: 12, vertical: 11),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: const BorderSide(
@@ -634,7 +670,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          flex: 2,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -648,8 +683,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               ),
                               const SizedBox(height: 4),
                               Container(
+                                height: 46,
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 2),
+                                    horizontal: 10),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFF0F4FA),
                                   borderRadius: BorderRadius.circular(8),
@@ -660,10 +696,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   child: DropdownButton<String>(
                                     value: _selectedSex,
                                     isExpanded: true,
+                                    icon: const Icon(
+                                        Icons.keyboard_arrow_down,
+                                        color: Color(0xFF64748B),
+                                        size: 20),
                                     items: [
                                       'Female',
                                       'Male',
-                                      'Prefer not to say'
                                     ]
                                         .map((s) => DropdownMenuItem(
                                             value: s,
@@ -683,54 +722,60 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          flex: 3,
-                          child: _buildInputField(
-                              'Contact Number', _contactNumber,
-                              hintText: '0987-654-3210'),
-                        ),
                       ],
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 12),
+                    _buildInputField(
+                      'Contact Number',
+                      _contactNumber,
+                      hintText: '0987-654-3210',
+                      keyboardType: TextInputType.phone,
+                      prefixIcon: Icons.phone_outlined,
+                    ),
+                    const SizedBox(height: 28),
 
-                    // Back and Register Buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF64748B),
-                            side: const BorderSide(color: Color(0xFFCBD5E1)),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          icon: const Icon(Icons.arrow_back, size: 16),
-                          onPressed: widget.onBackToLogin,
-                          label: const Text('Back to Login'),
-                        ),
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF003B81),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 28, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          icon: const Icon(Icons.check_circle_outline,
-                              size: 18),
-                          onPressed: _submitRegistration,
-                          label: const Text(
-                            'Complete Registration',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                    // Actions
+                    SizedBox(
+                      width: double.infinity,
+                      height: 46,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF003B81),
+                          foregroundColor: Colors.white,
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                      ],
+                        icon: const Icon(Icons.check_circle_outline, size: 18),
+                        onPressed: _submitRegistration,
+                        label: const Text(
+                          'Complete Registration',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Center(
+                      child: TextButton.icon(
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFF64748B),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                        ),
+                        icon: const Icon(Icons.arrow_back, size: 16),
+                        onPressed: widget.onBackToLogin,
+                        label: const Text(
+                          'Back to Login',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -742,8 +787,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-  Widget _buildInputField(String label, TextEditingController controller,
-      {bool isPassword = false, String? hintText}) {
+  Widget _buildInputField(
+    String label,
+    TextEditingController controller, {
+    bool isPassword = false,
+    String? hintText,
+    TextInputType? keyboardType,
+    IconData? prefixIcon,
+    Widget? suffixIcon,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -759,15 +811,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         TextField(
           controller: controller,
           obscureText: isPassword,
+          keyboardType: keyboardType,
           style: const TextStyle(fontSize: 13, color: Color(0xFF0F172A)),
           decoration: InputDecoration(
             filled: true,
             fillColor: const Color(0xFFF0F4FA),
             hintText: hintText ?? 'Enter $label',
             hintStyle:
-                const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+            prefixIcon: prefixIcon != null
+                ? Icon(prefixIcon, size: 18, color: const Color(0xFF64748B))
+                : null,
+            suffixIcon: suffixIcon,
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
