@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'services/firebase_service.dart';
 import 'models/dental_data.dart';
 import 'screens/admin_screen.dart';
 import 'screens/auth_screens.dart';
@@ -9,7 +12,15 @@ import 'screens/home_screen.dart';
 import 'screens/patient_account_view.dart';
 import 'widgets/dentibot_dialog.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase initialization error: $e');
+  }
   runApp(const DentiCareApp());
 }
 
@@ -204,6 +215,11 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
 
   // Appointment Actions
   void _addAppointment(AppointmentRecord record) {
+    // Save live appointment directly to Firebase Firestore
+    DentiFirebaseService.createAppointment(record).catchError((e) {
+      debugPrint('Firestore appointment sync error: $e');
+    });
+
     setState(() {
       _appointments.insert(0, record);
       _notifications.insert(

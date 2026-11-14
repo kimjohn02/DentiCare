@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/dental_data.dart';
+import '../services/firebase_service.dart';
 
 class LoginScreen extends StatefulWidget {
   final List<UserAccount> users;
@@ -23,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameCtrl = TextEditingController(text: 'kim_lupogan');
   final _passwordCtrl = TextEditingController(text: 'password123');
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -31,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
+  Future<void> _handleLogin() async {
     final username = _usernameCtrl.text.trim();
     final password = _passwordCtrl.text.trim();
 
@@ -45,51 +47,101 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // Match with registered users or create session account
-    final existingUser = widget.users.firstWhere(
+    // 1. Fast-path check for built-in administrative / staff demo accounts
+    final matchingLocalUsers = widget.users.where(
       (u) => u.username.toLowerCase() == username.toLowerCase(),
-      orElse: () {
-        // Fallback role detection based on username keywords if user is not in pre-populated list
-        String inferredRole = 'Patient';
-        final lower = username.toLowerCase();
-        if (lower.contains('admin')) {
-          inferredRole = 'Administrator';
-        } else if (lower.contains('staff') ||
-            lower.contains('desk') ||
-            lower.contains('nurse') ||
-            lower.contains('receptionist')) {
-          inferredRole = 'Clinic Staff';
-        }
-
-        return UserAccount(
-          id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
-          username: username,
-          fullName: inferredRole == 'Patient'
-              ? username
-              : (inferredRole == 'Clinic Staff'
-                  ? 'Clinic Staff Member'
-                  : 'System Administrator'),
-          email: '$username@denticare.clinic',
-          contactNumber: '0987-654-3210',
-          role: inferredRole,
-          status: 'Active',
-          registeredDate: '11/04/2026',
-        );
-      },
     );
 
-    if (existingUser.status == 'Suspended') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content:
-              Text('This account is suspended. Please contact clinic admin.'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+    if (matchingLocalUsers.isNotEmpty &&
+        (username.toLowerCase() == 'admin' ||
+            username.toLowerCase() == 'staff' ||
+            username.toLowerCase() == 'dr_grace')) {
+      final user = matchingLocalUsers.first;
+      if (user.status == 'Suspended') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text('This account is suspended. Please contact clinic admin.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+        return;
+      }
+      widget.onLoginSuccess(user);
       return;
     }
 
-    widget.onLoginSuccess(existingUser);
+    // 2. Authenticate with real Firebase
+    setState(() => _isLoading = true);
+    try {
+      final firebaseUser = await DentiFirebaseService.loginUser(
+        usernameOrEmail: username,
+        password: password,
+      );
+
+      if (firebaseUser != null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Welcome back, ${firebaseUser.fullName}!'),
+            backgroundColor: const Color(0xFF10B981),
+          ),
+        );
+        widget.onLoginSuccess(firebaseUser);
+        return;
+      }
+    } catch (e) {
+      debugPrint('Firebase login exception: $e');
+      // If user is offline or not found in Firebase, check local mock accounts
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+
+    // 3. Fallback matching with local user list for offline demo
+    if (matchingLocalUsers.isNotEmpty) {
+      final user = matchingLocalUsers.first;
+      if (user.status == 'Suspended') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text('This account is suspended. Please contact clinic admin.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+        return;
+      }
+      widget.onLoginSuccess(user);
+      return;
+    }
+
+    // 4. Fallback role detection based on username keywords
+    String inferredRole = 'Patient';
+    final lower = username.toLowerCase();
+    if (lower.contains('admin')) {
+      inferredRole = 'Administrator';
+    } else if (lower.contains('staff') ||
+        lower.contains('desk') ||
+        lower.contains('nurse') ||
+        lower.contains('receptionist')) {
+      inferredRole = 'Clinic Staff';
+    }
+
+    final fallbackUser = UserAccount(
+      id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
+      username: username,
+      fullName: inferredRole == 'Patient'
+          ? username
+          : (inferredRole == 'Clinic Staff'
+              ? 'Clinic Staff Member'
+              : 'System Administrator'),
+      email: '$username@denticare.clinic',
+      contactNumber: '0987-654-3210',
+      role: inferredRole,
+      status: 'Active',
+      registeredDate: '11/04/2026',
+    );
+
+    widget.onLoginSuccess(fallbackUser);
   }
 
   @override
@@ -161,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           width: double.infinity,
                           height: 44,
-                          child: ElevatedButton.icon(
+                          child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF003B81),
                               foregroundColor: Colors.white,
@@ -170,13 +222,29 @@ class _LoginScreenState extends State<LoginScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            icon: const Icon(Icons.login_rounded, size: 18),
-                            label: const Text(
-                              'Sign In',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 14),
-                            ),
-                            onPressed: _handleLogin,
+                            onPressed: _isLoading ? null : _handleLogin,
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(Icons.login_rounded, size: 18),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Sign In',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
                           ),
                         ),
                         const SizedBox(height: 18),
@@ -387,6 +455,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _contactNumber = TextEditingController();
   String _selectedSex = 'Female';
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -401,7 +470,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     super.dispose();
   }
 
-  void _submitRegistration() {
+  Future<void> _submitRegistration() async {
     if (_username.text.isEmpty ||
         _password.text.isEmpty ||
         _email.text.isEmpty ||
@@ -416,28 +485,76 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       return;
     }
 
-    final newPatientAccount = UserAccount(
-      id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
-      username: _username.text.trim(),
-      fullName:
-          '${_lastName.text.trim()}, ${_firstName.text.trim()} ${_middleInitial.text.trim()}',
-      email: _email.text.trim(),
-      contactNumber: _contactNumber.text.trim().isNotEmpty
-          ? _contactNumber.text.trim()
-          : '0987-654-3210',
-      role: 'Patient',
-      status: 'Active',
-      registeredDate: '11/04/2026',
-    );
+    if (!_email.text.contains('@') || !_email.text.contains('.')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid email address.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Patient registration successful! Welcome to DentiCare.'),
-        backgroundColor: Color(0xFF10B981),
-      ),
-    );
+    if (_password.text.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password must be at least 6 characters.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
 
-    widget.onRegisterSuccess(newPatientAccount);
+    setState(() => _isLoading = true);
+
+    final fullName = _middleInitial.text.trim().isNotEmpty
+        ? '${_lastName.text.trim()}, ${_firstName.text.trim()} ${_middleInitial.text.trim()}'
+        : '${_lastName.text.trim()}, ${_firstName.text.trim()}';
+
+    try {
+      final userAccount = await DentiFirebaseService.registerPatient(
+        username: _username.text.trim(),
+        email: _email.text.trim(),
+        password: _password.text.trim(),
+        fullName: fullName,
+        contactNumber: _contactNumber.text.trim().isNotEmpty
+            ? _contactNumber.text.trim()
+            : '0987-654-3210',
+        birthday: _birthday.text.trim(),
+        sex: _selectedSex,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Patient registration successful! Welcome to DentiCare.'),
+          backgroundColor: Color(0xFF10B981),
+        ),
+      );
+
+      if (userAccount != null) {
+        widget.onRegisterSuccess(userAccount);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      String errorMsg = e.toString();
+      if (errorMsg.contains('email-already-in-use')) {
+        errorMsg = 'This email is already registered. Please login instead.';
+      } else if (errorMsg.contains('weak-password')) {
+        errorMsg = 'Password is too weak. Please use at least 6 characters.';
+      } else if (errorMsg.contains('invalid-email')) {
+        errorMsg = 'The email address format is invalid.';
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Registration Error: $errorMsg'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -738,7 +855,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     SizedBox(
                       width: double.infinity,
                       height: 46,
-                      child: ElevatedButton.icon(
+                      child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF003B81),
                           foregroundColor: Colors.white,
@@ -747,15 +864,30 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        icon: const Icon(Icons.check_circle_outline, size: 18),
-                        onPressed: _submitRegistration,
-                        label: const Text(
-                          'Complete Registration',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        onPressed: _isLoading ? null : _submitRegistration,
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(Icons.check_circle_outline, size: 18),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Complete Registration',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
                     ),
                     const SizedBox(height: 10),

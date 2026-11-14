@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "300961560845",
+    "project_id": "flutter-69fe1",
+    "storage_bucket": "flutter-69fe1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:300961560845:android:460b65a4f79ab8a85d1844",
+        "android_client_info": {
+          "package_name": "com.example.denticare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "300961560845-l6ktel7n9qoebcald9jl9hagu7usler3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbI8U7VNsxqqUDwHsv9xWalG2bwrMJW8g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "300961560845-l6ktel7n9qoebcald9jl9hagu7usler3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
