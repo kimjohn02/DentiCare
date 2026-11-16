@@ -135,11 +135,18 @@ class PatientAccountView extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            child: TextButton.icon(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.redAccent,
+            child: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                backgroundColor: const Color(0xFFFEF2F2),
+                foregroundColor: const Color(0xFFDC2626),
+                side: const BorderSide(color: Color(0xFFFECACA), width: 1.2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               ),
-              icon: const Icon(Icons.logout_rounded, size: 18),
+              icon: const Icon(Icons.logout_rounded, size: 16),
               label: const Text(
                 'Log Out',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),

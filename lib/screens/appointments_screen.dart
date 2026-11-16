@@ -48,6 +48,27 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen>
           'My Appointments',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF003B81),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              icon: const Icon(Icons.add_rounded, size: 18),
+              label: const Text(
+                'Book Appointment',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              ),
+              onPressed: widget.onNavigateToBook,
+            ),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           labelColor: const Color(0xFF003B81),
@@ -66,13 +87,6 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen>
           _buildAppointmentList(completed, isUpcoming: false),
           _buildAppointmentList(cancelled, isUpcoming: false),
         ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: const Color(0xFF003B81),
-        foregroundColor: Colors.white,
-        onPressed: widget.onNavigateToBook,
-        icon: const Icon(Icons.add),
-        label: const Text('Book Appointment'),
       ),
     );
   }
@@ -183,17 +197,51 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton.icon(
+                      OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: const Color(0xFFEFF6FF),
+                          foregroundColor: const Color(0xFF003B81),
+                          side: const BorderSide(
+                              color: Color(0xFFBFDBFE), width: 1.2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
+                        ),
                         icon: const Icon(Icons.edit_calendar, size: 16),
-                        label: const Text('Reschedule'),
+                        label: const Text(
+                          'Reschedule',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
                         onPressed: widget.onNavigateToBook,
                       ),
-                      const SizedBox(width: 8),
-                      TextButton.icon(
+                      const SizedBox(width: 10),
+                      OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFEF2F2),
+                          foregroundColor: const Color(0xFFDC2626),
+                          side: const BorderSide(
+                              color: Color(0xFFFECACA), width: 1.2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
+                        ),
                         icon: const Icon(Icons.cancel_outlined,
-                            size: 16, color: Colors.red),
-                        label: const Text('Cancel',
-                            style: TextStyle(color: Colors.red)),
+                            size: 16, color: Color(0xFFDC2626)),
+                        label: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: Color(0xFFDC2626),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
                         onPressed: () {
                           _showCancelDialog(context, apt.id);
                         },

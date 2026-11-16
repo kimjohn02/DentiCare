@@ -231,57 +231,8 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
             ),
           ],
         ),
-        actions: [
-          // Direct 1-Click Font Size Toggle (Automatic Enlarge / Reduce)
-          IconButton(
-            tooltip: widget.isLargeFont
-                ? 'Standard Font Size (Current: Large)'
-                : 'Large Font Size (Current: Standard)',
-            style: IconButton.styleFrom(
-              backgroundColor: widget.isLargeFont
-                  ? const Color(0xFF003B81)
-                  : Colors.transparent,
-              foregroundColor: widget.isLargeFont
-                  ? Colors.white
-                  : (widget.isDarkMode ? Colors.white : const Color(0xFF003B81)),
-            ),
-            icon: const Icon(Icons.format_size_rounded, size: 22),
-            onPressed: () {
-              final newScale = !widget.isLargeFont;
-              widget.onToggleLargeFont(newScale);
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    newScale
-                        ? '🔤 Large Font Size Enabled (122%)'
-                        : '🔤 Standard Font Size Restored (100%)',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  duration: const Duration(milliseconds: 1400),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
-          ),
-          // Theme Toggle: Crescent Moon in Light Mode / Golden Sun in Dark Mode
-          IconButton(
-            tooltip: widget.isDarkMode
-                ? 'Switch to Light Mode'
-                : 'Switch to Dark Mode',
-            icon: Icon(
-              widget.isDarkMode
-                  ? Icons.wb_sunny_rounded
-                  : Icons.nightlight_round,
-              color: widget.isDarkMode
-                  ? const Color(0xFFFBBF24)
-                  : const Color(0xFF003B81),
-              size: 22,
-            ),
-            onPressed: () =>
-                widget.onToggleDarkMode(!widget.isDarkMode),
-          ),
-          const SizedBox(width: 8),
+        actions: const [
+          SizedBox(width: 8),
         ],
       ),
       body: SingleChildScrollView(
