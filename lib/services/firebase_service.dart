@@ -189,5 +189,127 @@ class DentiFirebaseService {
       rethrow;
     }
   }
+
+  /// Seed initial clinic services, dentists, appointments, and users to Firestore.
+  static Future<void> seedInitialData() async {
+    try {
+      final batch = _firestore.batch();
+
+      // 1. Services Collection
+      for (final s in DentalClinicData.services) {
+        final docRef = servicesCollection.doc(s.id);
+        batch.set(docRef, {
+          'id': s.id,
+          'name': s.name,
+          'description': s.description,
+          'duration': s.duration,
+          'cost': s.cost,
+        }, SetOptions(merge: true));
+      }
+
+      // 2. Dentists Collection
+      for (final d in DentalClinicData.dentists) {
+        final docRef = dentistsCollection.doc(d.id);
+        batch.set(docRef, {
+          'id': d.id,
+          'name': d.name,
+          'experience': d.experience,
+          'specialization': d.specialization,
+          'qualification': d.qualification,
+        }, SetOptions(merge: true));
+      }
+
+      // 3. Appointments Collection
+      final initialAppointments = [
+        const AppointmentRecord(
+          id: 'apt_init_pending',
+          patientName: 'Lupogan, Kim Macpao',
+          serviceName: 'Dental Bracing',
+          dentistName: 'Dr. Grace Cabilles',
+          date: '09/11/2026',
+          time: '8:00 AM',
+          contact: '0987-654-3210',
+          email: 'kim@gmail.com',
+          status: 'Pending',
+          notes: 'New booking via Patient Web Portal',
+        ),
+        const AppointmentRecord(
+          id: 'apt_init_confirmed',
+          patientName: 'Cagabhion, Ryza',
+          serviceName: 'Teeth Whitening',
+          dentistName: 'Dr. Joana Plewa',
+          date: '09/11/2026',
+          time: '1:00 PM',
+          contact: '0912-345-6789',
+          email: 'ryza@gmail.com',
+          status: 'Confirmed',
+          notes: 'Confirmed by clinic reception',
+        ),
+        const AppointmentRecord(
+          id: 'apt_init_completed',
+          patientName: 'Nuez, Mark',
+          serviceName: 'Teeth Cleaning',
+          dentistName: 'Dr. Ryan Luza',
+          date: '08/20/2026',
+          time: '10:00 AM',
+          contact: '0922-888-9999',
+          email: 'mark.nuez@gmail.com',
+          status: 'Completed',
+          notes: 'Routine plaque removal performed',
+        ),
+      ];
+
+      for (final apt in initialAppointments) {
+        final docRef = appointmentsCollection.doc(apt.id);
+        batch.set(docRef, {
+          'id': apt.id,
+          'patientName': apt.patientName,
+          'serviceName': apt.serviceName,
+          'dentistName': apt.dentistName,
+          'date': apt.date,
+          'time': apt.time,
+          'contact': apt.contact,
+          'email': apt.email,
+          'status': apt.status,
+          'notes': apt.notes,
+          'createdAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
+
+      // 4. Users Collection
+      for (final u in DentalClinicData.sampleUsers) {
+        final docRef = usersCollection.doc(u.id);
+        batch.set(docRef, {
+          'id': u.id,
+          'username': u.username,
+          'fullName': u.fullName,
+          'email': u.email,
+          'contactNumber': u.contactNumber,
+          'role': u.role,
+          'status': u.status,
+          'registeredDate': u.registeredDate,
+          'createdAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
+
+      await batch.commit();
+      debugPrint('Firestore clinic data seeded successfully.');
+    } catch (e) {
+      debugPrint('Error seeding Firestore data: $e');
+      rethrow;
+    }
+  }
+
+  /// Automatically seed Firestore if appointments collection is empty.
+  static Future<void> autoSeedIfEmpty() async {
+    try {
+      final snap = await appointmentsCollection.limit(1).get();
+      if (snap.docs.isEmpty) {
+        await seedInitialData();
+      }
+    } catch (e) {
+      debugPrint('Firestore auto-seed notice: $e');
+    }
+  }
 }
 

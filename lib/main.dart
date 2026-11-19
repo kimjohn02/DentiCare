@@ -18,6 +18,8 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    // Automatically populate Firestore tables/collections if database is empty
+    await DentiFirebaseService.autoSeedIfEmpty();
   } catch (e) {
     debugPrint('Firebase initialization error: $e');
   }
@@ -159,35 +161,35 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
       id: 'apt_init_pending',
       patientName: 'Lupogan, Kim Macpao',
       serviceName: 'Dental Bracing',
-      dentistName: 'Dr. Michaela Jordan',
+      dentistName: 'Dr. Grace Cabilles',
       date: '09/11/2026',
       time: '8:00 AM',
-      contact: '0987654321',
+      contact: '0987-654-3210',
       email: 'kim@gmail.com',
       status: 'Pending',
       notes: 'New booking via Patient Web Portal',
     ),
     const AppointmentRecord(
       id: 'apt_init_confirmed',
-      patientName: 'Reloba, Joen Paul',
+      patientName: 'Cagabhion, Ryza',
       serviceName: 'Teeth Whitening',
-      dentistName: 'Dr. Nathaniel Cruz',
+      dentistName: 'Dr. Joana Plewa',
       date: '09/11/2026',
       time: '1:00 PM',
-      contact: '0912345678',
-      email: 'joen@gmail.com',
+      contact: '0912-345-6789',
+      email: 'ryza@gmail.com',
       status: 'Confirmed',
-      notes: 'Confirmed by phone callback',
+      notes: 'Confirmed by clinic reception',
     ),
     const AppointmentRecord(
       id: 'apt_init_completed',
-      patientName: 'Santos, Maria Elena',
+      patientName: 'Nuez, Mark',
       serviceName: 'Teeth Cleaning',
-      dentistName: 'Dr. Michaela Jordan',
+      dentistName: 'Dr. Ryan Luza',
       date: '08/20/2026',
       time: '10:00 AM',
-      contact: '0922888999',
-      email: 'maria.santos@gmail.com',
+      contact: '0922-888-9999',
+      email: 'mark.nuez@gmail.com',
       status: 'Completed',
       notes: 'Routine plaque removal performed',
     ),

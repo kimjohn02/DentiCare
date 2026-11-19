@@ -1,0 +1,152 @@
+{
+  "services": [
+    {
+      "id": "bracing",
+      "name": "Dental Bracing",
+      "description": "Orthodontic dental braces align and straighten teeth, help position them with regard to a person's bite, and aim to improve dental health.",
+      "duration": "1 hour to 2 hours",
+      "cost": "P500.00 - P800.00"
+    },
+    {
+      "id": "cleaning",
+      "name": "Teeth Cleaning",
+      "description": "Routine professional prophylaxis removal of plaque, tartar, and surface stains to prevent cavities and periodontal disease.",
+      "duration": "45 mins to 1 hour",
+      "cost": "P600.00 - P1,200.00"
+    },
+    {
+      "id": "whitening",
+      "name": "Teeth Whitening",
+      "description": "Cosmetic dental bleaching procedure to lighten teeth and remove discoloration for a brighter and cleaner smile.",
+      "duration": "1 hour",
+      "cost": "P2,000.00 - P3,500.00"
+    },
+    {
+      "id": "implants",
+      "name": "Dental Implants & Restoration",
+      "description": "Surgical placement of artificial tooth roots and crowns to replace missing or severely damaged teeth.",
+      "duration": "1.5 hours to 3 hours",
+      "cost": "P15,000.00 - P25,000.00"
+    }
+  ],
+  "dentists": [
+    {
+      "id": "dr_grace",
+      "name": "Dr. Grace Cabilles",
+      "experience": "6 years of experience",
+      "specialization": "Orthodontics, Cosmetic Dentistry, General Dentistry",
+      "qualification": "Doctor of Dental Medicine (DMD), Board-Certified Orthodontics Specialist, Fellow, Philippine Dental Association"
+    },
+    {
+      "id": "dr_joana",
+      "name": "Dr. Joana Plewa",
+      "experience": "7 years of experience",
+      "specialization": "Pediatric Dentistry, Oral Prophylaxis, Restorative Care",
+      "qualification": "Doctor of Dental Medicine (DMD), Certified Pediatric Dental Specialist, PRC Lic. Verified"
+    },
+    {
+      "id": "dr_ryan",
+      "name": "Dr. Ryan Luza",
+      "experience": "8 years of experience",
+      "specialization": "Endodontics, Dental Surgery, Prosthodontics",
+      "qualification": "Doctor of Dental Medicine (DMD), Endodontics & Oral Surgery Specialist, Fellow, International Congress of Oral Implantologists"
+    },
+    {
+      "id": "dr_niere",
+      "name": "Dr. Niere Lupmac",
+      "experience": "5 years of experience",
+      "specialization": "Periodontics, Teeth Whitening, Preventive Dentistry",
+      "qualification": "Doctor of Dental Medicine (DMD), Aesthetic Dentistry Specialist, Philippine Dental Association Member"
+    }
+  ],
+  "users": [
+    {
+      "id": "u_1",
+      "username": "kim_lupogan",
+      "fullName": "Lupogan, Kim Macpao",
+      "email": "kim@gmail.com",
+      "contactNumber": "0987-654-3210",
+      "role": "Patient",
+      "status": "Active",
+      "registeredDate": "08/01/2026"
+    },
+    {
+      "id": "u_2",
+      "username": "ryza_cagabhion",
+      "fullName": "Cagabhion, Ryza",
+      "email": "ryza@gmail.com",
+      "contactNumber": "0912-345-6789",
+      "role": "Patient",
+      "status": "Active",
+      "registeredDate": "08/10/2026"
+    },
+    {
+      "id": "u_3",
+      "username": "mark_nuez",
+      "fullName": "Nuez, Mark",
+      "email": "mark.nuez@gmail.com",
+      "contactNumber": "0922-888-9999",
+      "role": "Patient",
+      "status": "Active",
+      "registeredDate": "07/15/2026"
+    },
+    {
+      "id": "u_4",
+      "username": "receptionist_jessie",
+      "fullName": "Jessie Revalde (Clinic Front Desk)",
+      "email": "desk@denticare.clinic",
+      "contactNumber": "0917-800-4321",
+      "role": "Clinic Staff",
+      "status": "Active",
+      "registeredDate": "05/01/2026"
+    },
+    {
+      "id": "u_5",
+      "username": "admin_kj",
+      "fullName": "KJ M. Lupogan (System Administrator)",
+      "email": "admin@denticare.clinic",
+      "contactNumber": "0919-555-1234",
+      "role": "Administrator",
+      "status": "Active",
+      "registeredDate": "01/10/2026"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "apt_init_pending",
+      "patientName": "Lupogan, Kim Macpao",
+      "serviceName": "Dental Bracing",
+      "dentistName": "Dr. Grace Cabilles",
+      "date": "09/11/2026",
+      "time": "8:00 AM",
+      "contact": "0987-654-3210",
+      "email": "kim@gmail.com",
+      "status": "Pending",
+      "notes": "New booking via Patient Web Portal"
+    },
+    {
+      "id": "apt_init_confirmed",
+      "patientName": "Cagabhion, Ryza",
+      "serviceName": "Teeth Whitening",
+      "dentistName": "Dr. Joana Plewa",
+      "date": "09/11/2026",
+      "time": "1:00 PM",
+      "contact": "0912-345-6789",
+      "email": "ryza@gmail.com",
+      "status": "Confirmed",
+      "notes": "Confirmed by clinic reception"
+    },
+    {
+      "id": "apt_init_completed",
+      "patientName": "Nuez, Mark",
+      "serviceName": "Teeth Cleaning",
+      "dentistName": "Dr. Ryan Luza",
+      "date": "08/20/2026",
+      "time": "10:00 AM",
+      "contact": "0922-888-9999",
+      "email": "mark.nuez@gmail.com",
+      "status": "Completed",
+      "notes": "Routine prophylaxis and plaque removal performed"
+    }
+  ]
+}

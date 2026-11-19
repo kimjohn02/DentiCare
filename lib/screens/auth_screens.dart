@@ -97,6 +97,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) setState(() => _isLoading = false);
     }
 
+    if (!mounted) return;
+
     // 3. Fallback matching with local user list for offline demo
     if (matchingLocalUsers.isNotEmpty) {
       final user = matchingLocalUsers.first;

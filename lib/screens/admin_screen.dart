@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/dental_data.dart';
+import '../services/firebase_service.dart';
 
 class AdminScreen extends StatefulWidget {
   final List<UserAccount> users;
@@ -346,6 +347,48 @@ class _AdminScreenState extends State<AdminScreen>
           ],
         ),
         actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF003B81),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              ),
+              icon: const Icon(Icons.cloud_upload_rounded, size: 16),
+              label: const Text(
+                'Sync to Firestore',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+              onPressed: () async {
+                try {
+                  await DentiFirebaseService.seedInitialData();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                            '✅ All tables and data uploaded to Firestore!'),
+                        backgroundColor: Color(0xFF10B981),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error uploading to Firestore: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+          ),
           if (widget.onLogout != null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
