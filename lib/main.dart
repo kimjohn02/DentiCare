@@ -295,12 +295,26 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
 
   void _updateUser(UserAccount updated) {
     setState(() {
-      _currentUser = updated;
+      if (_currentUser?.id == updated.id) {
+        _currentUser = updated;
+      }
       final idx = _users.indexWhere((u) => u.id == updated.id);
       if (idx != -1) {
         _users[idx] = updated;
       }
     });
+  }
+
+  void _deleteUser(String userId) {
+    setState(() {
+      _users.removeWhere((u) => u.id == userId);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('User account removed successfully.'),
+        backgroundColor: Color(0xFFEF4444),
+      ),
+    );
   }
 
   void _toggleUserStatus(String userId, String newStatus) {
@@ -333,9 +347,30 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
     });
   }
 
+  void _deleteService(String serviceId) {
+    setState(() {
+      _services.removeWhere((s) => s.id == serviceId);
+    });
+  }
+
   void _addDentist(Dentist dentist) {
     setState(() {
       _dentists.add(dentist);
+    });
+  }
+
+  void _updateDentist(Dentist dentist) {
+    setState(() {
+      final idx = _dentists.indexWhere((d) => d.id == dentist.id);
+      if (idx != -1) {
+        _dentists[idx] = dentist;
+      }
+    });
+  }
+
+  void _deleteDentist(String dentistId) {
+    setState(() {
+      _dentists.removeWhere((d) => d.id == dentistId);
     });
   }
 
@@ -446,10 +481,17 @@ class _DentiCareRootShellState extends State<DentiCareRootShell> {
               dentists: _dentists,
               appointments: _appointments,
               onAddUser: _addUser,
+              onUpdateUser: _updateUser,
+              onDeleteUser: _deleteUser,
               onToggleUserStatus: _toggleUserStatus,
               onAddService: _addService,
               onUpdateService: _updateService,
+              onDeleteService: _deleteService,
               onAddDentist: _addDentist,
+              onUpdateDentist: _updateDentist,
+              onDeleteDentist: _deleteDentist,
+              isLargeFont: widget.isLargeFont,
+              onToggleLargeFont: widget.onToggleLargeFont,
               onLogout: _logout,
             )
           : (isStaff

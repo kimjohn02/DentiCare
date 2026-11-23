@@ -8,6 +8,9 @@ class DentalService {
   final String cost;
   final IconData icon;
   final String? imageAsset;
+  final String category;
+  final bool isAvailable;
+  final String? assignedDoctor;
 
   const DentalService({
     required this.id,
@@ -17,6 +20,9 @@ class DentalService {
     required this.cost,
     required this.icon,
     this.imageAsset,
+    this.category = 'General',
+    this.isAvailable = true,
+    this.assignedDoctor,
   });
 
   DentalService copyWith({
@@ -26,6 +32,9 @@ class DentalService {
     String? cost,
     IconData? icon,
     String? imageAsset,
+    String? category,
+    bool? isAvailable,
+    String? assignedDoctor,
   }) {
     return DentalService(
       id: id,
@@ -35,6 +44,9 @@ class DentalService {
       cost: cost ?? this.cost,
       icon: icon ?? this.icon,
       imageAsset: imageAsset ?? this.imageAsset,
+      category: category ?? this.category,
+      isAvailable: isAvailable ?? this.isAvailable,
+      assignedDoctor: assignedDoctor ?? this.assignedDoctor,
     );
   }
 }
@@ -57,6 +69,8 @@ class Dentist {
     required this.avatarIcon,
     this.imageAsset,
   });
+
+  String get specialty => specialization;
 
   Dentist copyWith({
     String? name,
@@ -116,6 +130,8 @@ class AppointmentRecord {
     required this.status,
     this.notes,
   });
+
+  String get timeSlot => time;
 
   AppointmentRecord copyWith({
     String? status,
@@ -249,9 +265,12 @@ class DentalClinicData {
       description:
           'Orthodontic dental braces align and straighten teeth, help position them with regard to a person\'s bite, and aim to improve dental health.',
       duration: '1 hour to 2 hours',
-      cost: 'P500.00 - P800.00',
+      cost: 'P35,000.00 - P50,000.00',
       icon: Icons.architecture_rounded,
       imageAsset: 'assets/images/services/dental_bracing.png',
+      category: 'Orthodontics',
+      isAvailable: true,
+      assignedDoctor: 'Dr. Grace Cabilles',
     ),
     DentalService(
       id: 'cleaning',
@@ -262,6 +281,9 @@ class DentalClinicData {
       cost: 'P600.00 - P1,200.00',
       icon: Icons.clean_hands_rounded,
       imageAsset: 'assets/images/services/teeth_cleaning.png',
+      category: 'Preventive',
+      isAvailable: true,
+      assignedDoctor: 'Dr. Joana Plewa',
     ),
     DentalService(
       id: 'whitening',
@@ -272,6 +294,9 @@ class DentalClinicData {
       cost: 'P2,000.00 - P3,500.00',
       icon: Icons.auto_awesome_rounded,
       imageAsset: 'assets/images/services/teeth_whitening.png',
+      category: 'Cosmetic',
+      isAvailable: true,
+      assignedDoctor: 'Dr. Niere Lupmac',
     ),
     DentalService(
       id: 'implants',
@@ -282,6 +307,9 @@ class DentalClinicData {
       cost: 'P15,000.00 - P25,000.00',
       icon: Icons.healing_rounded,
       imageAsset: 'assets/images/services/dental_implants.png',
+      category: 'Restorative',
+      isAvailable: true,
+      assignedDoctor: 'Dr. Ryan Luza',
     ),
   ];
 
